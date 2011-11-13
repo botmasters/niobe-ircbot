@@ -15,21 +15,13 @@ process.on('uncaughtException', function(err) {
 
 var niobe = function (config) {
     var self = this;
-<<<<<<< HEAD
     this.client = new irc.Client(config.host, config.nick, { channels: config.channels, secure : true, selfSigned: true, debug: true, port : config.port, retryDelay: 5000 });
-    
-    this.client.on('message', function (from, channel, message) {
-	self.commandCenter(from, channel, message);
-=======
-    this.client = new irc.Client(config.host, config.nick, { channels: ['#niobe'], secure : true, selfSigned: true, debug: true, port : config.port, retryDelay: 5000 });
     this.db = new botdb(config);
-    
     this.bootstrap();
-
+    
     this.client.on('message', function (from, target, message) {
 	console.log(from, target, message);
 	self.commandCenter(from, target, message, (target == self.client.opt.nick));
->>>>>>> c8ed2754744817c4357c6e84d84f60b5beb85953
     });
 };
 
