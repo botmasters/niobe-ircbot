@@ -15,18 +15,73 @@ process.on('uncaughtException', function(err) {
 
 var niobe = function (config) {
     var self = this;
+    
+    this.debug = config.debug || false;
+    this.modules = {};
+    this.modulesPath = config.modulesPath;
+    this.identifiedUsers = {};
+    
     this.client = new irc.Client(config.host, config.nick, { channels: config.channels, secure : true, selfSigned: true, debug: true, port : config.port, retryDelay: 5000 });
     this.db = new botdb(config);
-    this.bootstrap();
+    
+    // Load modules
+    (config.modules || []).forEach(function (module) {
+	self.loadModule(module);
+    });
+    
+    this.client.on('motd', function () {
+	self.bootstrap();
+	self.client.send('WHOIS zephrax');
+    });
     
     this.client.on('message', function (from, target, message) {
-	console.log(from, target, message);
+	if (self.debug)
+	    console.log(from, target, message);
 	self.commandCenter(from, target, message, (target == self.client.opt.nick));
     });
 };
 
 niobe.prototype.say = function (target, text) {
     this.client.say(target, text);
+};
+
+niobe.prototype.notice = function (target, text) {
+    this.client.notice(target, text);
+};
+
+niobe.prototype.addModuleListeners = function (module) {
+    var self = this;
+    
+    if (this.debug)
+	console.log('Adding listeners for ' + module + ' ...');
+    
+    // Add listeners
+    if (module.listeners) {
+	(Object.keys(module.listeners) || []).forEach(function (listener) {
+	    self.client.on(listener, module.listeners[listener]);
+	});
+    }
+};
+
+niobe.prototype.loadModule = function (module) {
+    if (this.debug)
+	console.log('Loading module ' + module + ' ...');
+    
+    var fp = this.modulesPath + module + '/index.js';
+    var pl = require(fp);
+    pl.bot = this;
+    
+    this.modules[module] = pl;
+    
+    this.addModuleListeners(pl);
+    
+    if (pl.initModule)
+	pl.initModule();
+};
+
+niobe.prototype.unloadModule = function (module) {
+    if (self.debug)
+	console.log('Unloading module ' + module + ' ...');
 };
 
 /**
@@ -38,7 +93,9 @@ niobe.prototype.bootstrap = function () {
     this.db.getChannels(function (err, results) {
 	if (!err) {
 	    (results || []).forEach(function (channel) {
-		self.client.join(channel);
+		if (self.debug)
+		    console.log('Auto-joining ' + channel.channel + ' ...');
+		self.client.join(channel.channel);
 	    });
 	}
     });
@@ -56,35 +113,38 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
     var parts = message.trim().split(/ +/);
     var command = parts[0];
 
-    switch (command) {
-	case '!uptime':
-	    this.exec('uptime', channel);
-	    break;
+    if (is_pv) {
+    } else {
+	switch (command) {
+	    case '!uptime':
+		this.exec('uptime', channel);
+		break;
 
-	case '!uname':
-	    this.exec('uname -a', channel);
-	    break;
+	    case '!uname':
+		this.exec('uname -a', channel);
+		break;
 
-	case '!join':
-	    if (parts[1] != undefined)
-		this.client.join(parts[1]);
-	    break;
+	    case '!join':
+		if (parts[1] != undefined)
+		    this.client.join(parts[1]);
+		break;
 
-	case '!channels':
-	    this.cmdChannels(parts, channel);
-	    break;
+	    case '!channels':
+		this.cmdChannels(parts, channel);
+		break;
 
-	case '!debug':
-	    console.log(this.client.chans);
-	    break;
-	
-	case '!part':
-	    if (parts[1] != undefined)
-		this.client.part(parts[1]);
-	    break;
+	    case '!debug':
+		console.log(this.client.chans);
+		break;
 
-	default:
-	    break;
+	    case '!part':
+		if (parts[1] != undefined)
+		    this.client.part(parts[1]);
+		break;
+
+	    default:
+		break;
+	}
     }
 };
 
@@ -97,7 +157,7 @@ niobe.prototype.exec = function (command, target) {
 	    self.say(target, stdout);
 	}
     });
-}
+};
 
 niobe.prototype.cmdChannels = function (parts, channel) {
     var self = this;
