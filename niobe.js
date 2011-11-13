@@ -14,7 +14,7 @@ process.on('uncaughtException', function(err) {
 
 var niobe = function (config) {
     var self = this;
-    this.client = new irc.Client(config.host, config.nick, { channels: ['#niobe'], secure : true, selfSigned: true, debug: true, port : config.port, retryDelay: 5000 });
+    this.client = new irc.Client(config.host, config.nick, { channels: config.channels, secure : true, selfSigned: true, debug: true, port : config.port, retryDelay: 5000 });
     
     this.client.on('message', function (from, channel, message) {
 	self.commandCenter(from, channel, message);
