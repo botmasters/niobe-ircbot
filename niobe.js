@@ -17,6 +17,8 @@ var niobe = function (config) {
     var self = this;
     this.client = new irc.Client(config.host, config.nick, { channels: ['#niobe'], secure : true, selfSigned: true, debug: true, port : config.port, retryDelay: 5000 });
     this.db = new botdb(config);
+    
+    this.bootstrap();
 
     this.client.on('message', function (from, target, message) {
 	console.log(from, target, message);
@@ -26,6 +28,21 @@ var niobe = function (config) {
 
 niobe.prototype.say = function (target, text) {
     this.client.say(target, text);
+};
+
+/**
+ * Performs startup actions, like joining channels, etc..
+ */
+niobe.prototype.bootstrap = function () {
+    var self = this;
+    
+    this.db.getChannels(function (err, results) {
+	if (!err) {
+	    (results || []).forEach(function (channel) {
+		self.client.join(channel);
+	    });
+	}
+    });
 };
 
 /**
