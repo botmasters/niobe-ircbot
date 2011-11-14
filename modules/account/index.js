@@ -46,7 +46,7 @@ var account = {
 		    password.update(params[1]);
 		    accountModule.bot.db.newUser([nick, params[0], password.digest('hex')], function (result) {
 			if (result === null)
-			    accountModule.bot.notice(nick, 'You are now registered! There is no need to identify right now ;)');
+			    accountModule.bot.notice(nick, 'You are now registered!');
 			else
 			    accountModule.bot.notice(nick, 'Failed to save the user to database, please try again later.');
 			
@@ -63,6 +63,21 @@ var account = {
      * @param array params Command parameters
      */
     cmdIdentify : function (nick, params) {
+	if (accountModule.bot.identifiedUsers.indexOf(nick) != -1) {
+	    accountModule.bot.notice(nick, 'You are already identified.');
+	} else if (params.length >= 1) {
+	    var password = crypto.createHash('sha1');
+	    password.update(params[0]);
+	    accountModule.bot.db.getUserForLogin(nick, password.digest('hex'), function (result) {
+		if (result) {
+		    accountModule.bot.notice(nick, 'You are now identified.');
+		    if (accountModule.bot.identifiedUsers.indexOf(nick) == -1)
+			accountModule.bot.identifiedUsers.push(nick);
+		} else {
+		    accountModule.bot.notice(nick, 'Invalid credentials.');
+		}
+	    });
+	}
     },
     
     /**
@@ -70,13 +85,47 @@ var account = {
      */
     cmdAccess : function () {
 	
+    },
+    
+    checkInAnotherChannel : function (curr_chan, nick) {
+	var active_user = false;
+	(Object.keys(accountModule.bot.client.chans) || []).forEach(function (chan) {
+	   if (chan != curr_chan) {
+	       (Object.keys(accountModule.bot.client.chans[chan].users || [])).forEach(function (user){
+		   if (user == nick)
+		       active_user = true;
+	       });
+	   }
+	});
+	
+	return active_user;
+    },
+    
+    logoutUser : function (user) {
+	delete accountModule.bot.identifiedUsers[accountModule.bot.identifiedUsers.indexOf(user)];
+	console.log('Logout ' + user + ' ...');
+    },
+    
+    // #niobe zephrax 'leaving'
+    part : function (arg0, nick, arg1) {
+	if (!account.checkInAnotherChannel(arg0, nick)) {
+	    account.logoutUser(nick);
+	}
+    },
+    
+    // #niobe zephrax Chanserv (zephrax) test
+    kick : function (arg0, arg1, nick, arg2) {
+	if (!account.checkInAnotherChannel(arg0, arg1)) {
+	    account.logoutUser(arg1);
+	}
     }
-
 };
 
 var accountModule = {
     listeners : {
-	message : account.main
+	message : account.main,
+	part : account.part,
+	kick : account.kick
     }
 };
 

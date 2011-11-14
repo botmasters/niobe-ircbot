@@ -19,7 +19,7 @@ var niobe = function (config) {
     this.debug = config.debug || false;
     this.modules = {};
     this.modulesPath = config.modulesPath;
-    this.identifiedUsers = {};
+    this.identifiedUsers = [];
     
     this.client = new irc.Client(config.host, config.nick, { channels: config.channels, secure : true, selfSigned: true, debug: true, port : config.port, retryDelay: 5000 });
     this.db = new botdb(config);
