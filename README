@@ -1,2 +1,14 @@
 Niobe IRC Bot - Node.JS
 
+Installing Required packages:
+
+npm install irc
+npm install sqlite3
+
+
+Database creation
+# sqlite3 dbname.db
+
+CREATE TABLE channels (id INTEGER PRIMARY KEY ASC, channel TEXT);
+CREATE TABLE users (id INTEGER PRIMARY KEY ASC, user TEXT, password TEXT, email TEXT);
+
