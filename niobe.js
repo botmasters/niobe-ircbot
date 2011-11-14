@@ -80,8 +80,19 @@ niobe.prototype.loadModule = function (module) {
 };
 
 niobe.prototype.unloadModule = function (module) {
+    var pl = this.plugins[cleanName];
+    
     if (self.debug)
 	console.log('Unloading module ' + module + ' ...');
+    
+    if (pl.teardownPlugin) {
+	    pl.teardownPlugin();
+    }
+    
+    if(pl) {
+	    this.removeListeners(pl);
+	    delete this.plugins[module];
+    }
 };
 
 /**
@@ -121,7 +132,7 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
 		break;
 
 	    case '!uname':
-		this.exec('uname -a', channel);
+		this.exec('uname', channel, ['-a']);
 		break;
 
 	    case '!join':
@@ -148,14 +159,16 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
     }
 };
 
-niobe.prototype.exec = function (command, target) {
+niobe.prototype.exec = function (command, target, args) {
     var self = this;
-    child = child_process.exec(command, function (error, stdout, stderr) {
-	if (error !== null) {
-	    self.say(target, 'Error executing "' + command  + '": ' + error);
-	} else {
-	    self.say(target, stdout);
-	}
+    
+    if (args == undefined)
+	var args = [];
+    
+    var child = child_process.spawn(command, args);
+    
+    child.stdout.on('data', function (data) {
+	self.say(target, data);
     });
 };
 

@@ -6,7 +6,7 @@ var config = {
 	nick : 'niobe',
         channels: ['#niobe'],
 	db : 'niobe.db',
-	modules : [ 'account' ],
+	modules : [ 'hash', 'ping', 'account' ],
 	modulesPath : './modules/'
 };
 

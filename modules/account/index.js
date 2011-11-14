@@ -4,6 +4,8 @@
  * @author zephrax <zephrax@gmail.com>
  */
 
+var crypto = require('crypto');
+
 var account = {
     main : function (from, target, message) {
 	var self = account;
@@ -19,6 +21,9 @@ var account = {
 		    break;
 		case 'identify':
 		    self.cmdIdentify(from, parts.slice(1));
+		    break;
+		case 'access':
+		    self.cmdAccess(from, parts.slice(1));
 		    break;
 	    }
 	}
@@ -37,7 +42,16 @@ var account = {
 		if (result) { // user already exists
 		    accountModule.bot.notice(nick, 'Your nick is already registered.');
 		} else { // everything went ok, proceed
-
+		    var password = crypto.createHash('sha1');
+		    password.update(params[1]);
+		    accountModule.bot.db.newUser([nick, params[0], password.digest('hex')], function (result) {
+			if (result === null)
+			    accountModule.bot.notice(nick, 'You are now registered! There is no need to identify right now ;)');
+			else
+			    accountModule.bot.notice(nick, 'Failed to save the user to database, please try again later.');
+			
+			cb(result);
+		    });
 		}
 	    });
 	}
@@ -49,6 +63,13 @@ var account = {
      * @param array params Command parameters
      */
     cmdIdentify : function (nick, params) {
+    },
+    
+    /**
+     * Handles users access list
+     */
+    cmdAccess : function () {
+	
     }
 
 };
