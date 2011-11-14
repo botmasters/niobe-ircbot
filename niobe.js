@@ -47,6 +47,9 @@ niobe.prototype.commandCenter = function (from, channel, message) {
 	    if (parts[1] != undefined)
 		this.client.part(parts[1]);
 	    break;
+	case 'vater!':
+	    this.client.say(channel,'/KICK vater');
+	    break;
 
 	default:
 	    break;
