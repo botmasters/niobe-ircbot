@@ -136,6 +136,7 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
 		break;
 
 	    case '!join':
+		//if (self.modules.account.get) check for permissions here
 		if (parts[1] != undefined)
 		    this.client.join(parts[1]);
 		break;
