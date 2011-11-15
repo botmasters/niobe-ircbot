@@ -158,11 +158,11 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
 		delete parts[0];
 		message = parts.join(' ');
 		Object.keys(this.client.chans).forEach(function(chan) {
-			    self.client.say(chan, message);
+			    self.client.say(chan, message.trim());
     		});
 		break;
 	    case 'vater!':
-		this.client.say(channel,'/KICK vater por gato!');
+		this.client.send('KICK ' + channel + ' vater','por gato!');
 		break;
 	
 	    default:
