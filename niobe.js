@@ -153,10 +153,13 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
 		    this.client.part(parts[1]);
 		break;
 
-	    case 'vater!':
-		this.client.say(channel,'/KICK vater');
-		break;
-
+	    case '!broadcast':
+		delete parts[0];
+		message = parts.join(' ');
+		Object.keys(this.client.chans).forEach(function(chan) {
+			    self.client.say(chan, message);
+    		});
+	
 	    default:
 		break;
 	}
