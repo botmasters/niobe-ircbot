@@ -49,4 +49,14 @@ botdb.prototype.newUser = function (data, cb) {
     });
 };
 
+/**
+ * Create a new user and saves it to database
+ */
+botdb.prototype.setUserPerms = function (user, level, cb) {
+    var stmt = this.db.prepare("UPDATE users SET level = ? WHERE user = ?");
+    stmt.run(level, user, function (result) {
+	cb(result);
+    });
+};
+
 module.exports = botdb;

@@ -10,5 +10,4 @@ Database creation
 # sqlite3 dbname.db
 
 CREATE TABLE channels (id INTEGER PRIMARY KEY ASC, channel TEXT);
-CREATE TABLE users (id INTEGER PRIMARY KEY ASC, user TEXT, password TEXT, email TEXT);
-
+CREATE TABLE users (id INTEGER PRIMARY KEY ASC, user TEXT, password TEXT, email TEXT, level INTEGER DEFAULT 10);

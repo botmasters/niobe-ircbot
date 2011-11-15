@@ -43,8 +43,8 @@ var account = {
 		    accountModule.bot.notice(nick, 'Your nick is already registered.');
 		} else { // everything went ok, proceed
 		    var password = crypto.createHash('sha1');
-		    password.update(params[1]);
-		    accountModule.bot.db.newUser([nick, params[0], password.digest('hex')], function (result) {
+		    password.update(params[0]);
+		    accountModule.bot.db.newUser([nick, params[1], password.digest('hex')], function (result) {
 			if (result === null)
 			    accountModule.bot.notice(nick, 'You are now registered!');
 			else
@@ -83,22 +83,53 @@ var account = {
     /**
      * Handles users access list
      */
-    cmdAccess : function () {
+    cmdAccess : function (nick, params) {
+	if (params.length <= 1) {
+	    accountModule.bot.notice(nick, 'Usage access user [0..99]');
+	    return;
+	}
 	
+	accountModule.bot.db.getUser(params[0], function (result) {
+	    if (!result) {
+		accountModule.bot.notice(nick, 'User \'' + params[0] + '\' not found.');
+	    } else {
+		accountModule.bot.db.setUserPerms(params[0], parseInt(params[1]), function (result) {
+		    if (result)
+			accountModule.bot.notice(nick, 'Failed to update user perms. Please try again later.');
+		    else
+			accountModule.bot.notice(nick, 'User \'' + params[0] + '\' not have level \'' + params[1] + '.');
+		});
+	    }
+	});
     },
     
+    /**
+     * Check if the user is or not in another channel
+     * @param string curr_chan The current channel where the event was triggered
+     * @param string nick User nickname
+     */
     checkInAnotherChannel : function (curr_chan, nick) {
-	var active_user = false;
-	(Object.keys(accountModule.bot.client.chans) || []).forEach(function (chan) {
-	   if (chan != curr_chan) {
-	       (Object.keys(accountModule.bot.client.chans[chan].users || [])).forEach(function (user){
-		   if (user == nick)
-		       active_user = true;
-	       });
-	   }
-	});
-	
-	return active_user;
+	if (nick == accountModule.bot.client.opt.nick) {
+	    if (Object.keys(accountModule.bot.client.chans).length == 1)
+		account.logoutAllUsers();
+	} else {
+	    var active_user = false;
+	    (Object.keys(accountModule.bot.client.chans) || []).forEach(function (chan) {
+	       if (chan != curr_chan) {
+		   (Object.keys(accountModule.bot.client.chans[chan].users || [])).forEach(function (user){
+		       if (user == nick)
+			   active_user = true;
+		   });
+	       }
+	    });
+	    
+	    return active_user;
+	}
+    },
+    
+    logoutAllUsers : function () {
+	console.log('Logging out all of the users..');
+	accountModule.bot.identifiedUsers = [];
     },
     
     logoutUser : function (user) {
@@ -106,14 +137,18 @@ var account = {
 	console.log('Logout ' + user + ' ...');
     },
     
-    // #niobe zephrax 'leaving'
+    getUserLevel : function (nick, cb) {
+	accountModule.bot.db.getUser(nick, function (result) {
+	    cb(result);
+	});
+    },
+    
     part : function (arg0, nick, arg1) {
 	if (!account.checkInAnotherChannel(arg0, nick)) {
 	    account.logoutUser(nick);
 	}
     },
     
-    // #niobe zephrax Chanserv (zephrax) test
     kick : function (arg0, arg1, nick, arg2) {
 	if (!account.checkInAnotherChannel(arg0, arg1)) {
 	    account.logoutUser(arg1);
