@@ -160,6 +160,10 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
 		Object.keys(this.client.chans).forEach(function(chan) {
 			    self.client.say(chan, message);
     		});
+		break;
+	    case 'vater!':
+		this.client.say(channel,'/KICK vater por gato!');
+		break;
 	
 	    default:
 		break;
