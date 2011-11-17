@@ -161,10 +161,15 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
 			    self.client.say(chan, message.trim());
     		});
 		break;
+
 	    case 'vater!':
 		this.client.send('KICK ' + channel + ' vater','por gato!');
 		break;
-	
+	    case 'ea':
+	    case 'eaea':
+	    case 'aza':
+		this.client.say(channel, 'eaea');
+		break;
 	    default:
 		break;
 	}
