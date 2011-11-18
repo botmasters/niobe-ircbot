@@ -9,9 +9,9 @@ var irc = require('irc'),
     child_process = require('child_process'),
     botdb = require('./botdb.js');
 
-/*process.on('uncaughtException', function(err) {
+process.on('uncaughtException', function(err) {
     console.log('Uncaught Exception: ' + err);
-});*/
+});
 
 var niobe = function (config) {
     var self = this;
@@ -20,36 +20,38 @@ var niobe = function (config) {
     this.modules = {};
     this.modulesPath = config.modulesPath;
     this.identifiedUsers = [];
-    this.servers = [];
-    config.servers.forEach( function(server){
-        server.client = new irc.Client(server.host, config.nick, { channels: server.channels, secure : true, selfSigned: true, debug: true, port : server.port, retryDelay: 5000 });
-        self.servers.push(server);
-    });
-    this.db = new botdb(config);
+    this.clients = {};
+    this.dbs = {};
     
-    // Load modules
-    (config.modules || []).forEach(function (module) {
-	self.loadModule(module);
+    Object.keys(config.servers).forEach(function(key) {
+	var server = config.servers[key];
+        self.clients[key] = new irc.Client(server.host, server.nick, { channels: server.channels, secure : server.secure, selfSigned: server.selfSigned, debug: server.debug, port : server.port, retryDelay: 5000 });
+	self.dbs[key] = new botdb(config.servers[key]);
+	
+	self.clients[key].on('motd', function () {
+	    self.bootstrap(key);
+	});
+	
+	self.clients[key].on('message', function (from, target, message) {
+	    if (self.debug)
+		console.log(from, target, message);
+	    self.commandCenter(key, from, target, message, (target == self.clients[key].opt.nick));
+	});
+	
+	// Load modules
+	(config.modules || []).forEach(function (module) {
+	    self.loadModule(key, module);
+	});
     });
     
-    this.client.on('motd', function () {
-	self.bootstrap();
-	self.servers[0].client.send('WHOIS zephrax');
-    });
-    
-    this.client.on('message', function (from, target, message) {
-	if (self.debug)
-	    console.log(from, target, message);
-	self.commandCenter(from, target, message, (target == self.servers[0].client.opt.nick));
-    });
 };
 
-niobe.prototype.say = function (target, text) {
-    this.client.say(target, text);
+niobe.prototype.say = function (server, target, text) {
+    this.clients[server].say(target, text);
 };
 
-niobe.prototype.notice = function (target, text) {
-    this.client.notice(target, text);
+niobe.prototype.notice = function (server, target, text) {
+    this.clients[server].notice(target, text);
 };
 
 niobe.prototype.addModuleListeners = function (module) {
@@ -66,7 +68,7 @@ niobe.prototype.addModuleListeners = function (module) {
     }
 };
 
-niobe.prototype.loadModule = function (module) {
+niobe.prototype.loadModule = function (server, module) {
     if (this.debug)
 	console.log('Loading module ' + module + ' ...');
     
@@ -76,24 +78,24 @@ niobe.prototype.loadModule = function (module) {
     
     this.modules[module] = pl;
     
-    this.addModuleListeners(pl);
+    this.addModuleListeners(server, pl);
     
     if (pl.initModule)
-	pl.initModule();
+	pl.initModule(server);
 };
 
-niobe.prototype.unloadModule = function (module) {
+niobe.prototype.unloadModule = function (server, module) {
     var pl = this.plugins[cleanName];
     
     if (self.debug)
 	console.log('Unloading module ' + module + ' ...');
     
     if (pl.teardownPlugin) {
-	    pl.teardownPlugin();
+	    pl.teardownPlugin(server);
     }
     
     if(pl) {
-	    this.removeListeners(pl);
+	    this.removeListeners(server, pl);
 	    delete this.plugins[module];
     }
 };
@@ -101,15 +103,15 @@ niobe.prototype.unloadModule = function (module) {
 /**
  * Performs startup actions, like joining channels, etc..
  */
-niobe.prototype.bootstrap = function () {
+niobe.prototype.bootstrap = function (server) {
     var self = this;
     
-    this.db.getChannels(function (err, results) {
+    this.dbs[server].getChannels(function (err, results) {
 	if (!err) {
 	    (results || []).forEach(function (channel) {
 		if (self.debug)
 		    console.log('Auto-joining ' + channel.channel + ' ...');
-		self.client.join(channel.channel);
+		self.clients[server].join(channel.channel);
 	    });
 	}
     });
@@ -122,7 +124,7 @@ niobe.prototype.bootstrap = function () {
  * @param string message Sent message from the user
  * @param bool is_pv True if is a private message
  */
-niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
+niobe.prototype.commandCenter = function (server, from, channel, message, is_pv) {
     var self = this;
     var parts = message.trim().split(/ +/);
     var command = parts[0];
@@ -131,47 +133,47 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
     } else {
 	switch (command) {
 	    case '!uptime':
-		this.exec('uptime', channel);
+		this.exec(server, 'uptime', channel);
 		break;
 
 	    case '!uname':
-		this.exec('uname', channel, ['-a']);
+		this.exec(server, 'uname', channel, ['-a']);
 		break;
 
 	    case '!join':
 		//if (self.modules.account.get) check for permissions here
 		if (parts[1] != undefined)
-		    this.client.join(parts[1]);
+		    this.clients[server].join(parts[1]);
 		break;
 
 	    case '!channels':
-		this.cmdChannels(parts, channel);
+		this.cmdChannels(server, parts, channel);
 		break;
 
 	    case '!debug':
-		console.log(this.client.chans);
+		console.log(this.clients[server].chans);
 		break;
 
 	    case '!part':
 		if (parts[1] != undefined)
-		    this.client.part(parts[1]);
+		    this.clients[server].part(parts[1]);
 		break;
 
 	    case '!broadcast':
 		delete parts[0];
 		message = parts.join(' ');
-		Object.keys(this.client.chans).forEach(function(chan) {
-			    self.client.say(chan, message.trim());
+		Object.keys(this.clients[server].chans).forEach(function(chan) {
+			    self.clients[server].say(chan, message.trim());
     		});
 		break;
 
 	    case 'vater!':
-		this.client.send('KICK ' + channel + ' vater','por gato!');
+		this.clients[server].send('KICK ' + channel + ' vater','por gato!');
 		break;
 	    case 'ea':
 	    case 'eaea':
 	    case 'aza':
-		this.client.say(channel, 'eaea');
+		this.clients[server].say(channel, 'eaea');
 		break;
 	    default:
 		break;
@@ -179,7 +181,7 @@ niobe.prototype.commandCenter = function (from, channel, message, is_pv) {
     }
 };
 
-niobe.prototype.exec = function (command, target, args) {
+niobe.prototype.exec = function (server, command, target, args) {
     var self = this;
     
     if (args == undefined)
@@ -188,16 +190,16 @@ niobe.prototype.exec = function (command, target, args) {
     var child = child_process.spawn(command, args);
     
     child.stdout.on('data', function (data) {
-	self.say(target, data);
+	self.say(server, target, data);
     });
 };
 
-niobe.prototype.cmdChannels = function (parts, channel) {
+niobe.prototype.cmdChannels = function (server, parts, channel) {
     var self = this;
 
-    this.db.getChannels(function (err, results) {
+    this.dbs[server].getChannels(function (err, results) {
 	(results || []).forEach(function (chan) {
-	    self.say(channel, chan.channel);
+	    self.say(server, channel, chan.channel);
 	});
     });
 };

@@ -114,7 +114,7 @@ var account = {
 		account.logoutAllUsers();
 	} else {
 	    var active_user = false;
-	    (Object.keys(accountModule.bot.client.chans) || []).forEach(function (chan) {
+	     (Object.keys(accountModule.bot.client.chans) || []).forEach(function (chan) {
 	       if (chan != curr_chan) {
 		   (Object.keys(accountModule.bot.client.chans[chan].users || [])).forEach(function (user){
 		       if (user == nick)

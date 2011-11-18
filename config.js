@@ -1,23 +1,19 @@
 var config = {
-	debug : true,
-	host : 'irc.kernelpanic.com.ar',
-	ssl : true,
-	port : 6697,
-	nick : 'aza_not',
-        servers: [ 
-		{ 
-		host:'irc.kernelpanic.com.ar', 
-		channels:['#niobe','#kernelpanic'], 
-		port:6697 
-		}, 
+	servers : {
+	    'KernelPanic' :
 		{
-		host:'irc.freenode.net',
-		channels:['#ppar','#esfriki'],
-		port:7000
-		},
-	],
-	db : 'niobe.db',
-	modules : [ 'hash', 'ping', 'account' ],
+		    debug : true,
+		    host : 'irc.kernelpanic.com.ar',
+		    secure : true,
+		    selfSigned : true,
+		    port : 6697,
+		    nick : 'niobe',
+		    channels: ['#niobe','#kernelpanic'],
+		    db : 'niobe.db'
+		}
+	},
+	debug : true,
+	modules : [ 'hash', 'ping', 'accountservices' ],
 	modulesPath : './modules/'
 };
 
