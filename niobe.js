@@ -9,9 +9,9 @@ var irc = require('irc'),
     child_process = require('child_process'),
     botdb = require('./botdb.js');
 
-process.on('uncaughtException', function(err) {
+/*process.on('uncaughtException', function(err) {
     console.log('Uncaught Exception: ' + err);
-});
+});*/
 
 var niobe = function (config) {
     var self = this;
@@ -20,8 +20,11 @@ var niobe = function (config) {
     this.modules = {};
     this.modulesPath = config.modulesPath;
     this.identifiedUsers = [];
-    
-    this.client = new irc.Client(config.host, config.nick, { channels: config.channels, secure : true, selfSigned: true, debug: true, port : config.port, retryDelay: 5000 });
+    this.servers = [];
+    config.servers.forEach( function(server){
+        server.client = new irc.Client(server.host, config.nick, { channels: server.channels, secure : true, selfSigned: true, debug: true, port : server.port, retryDelay: 5000 });
+        self.servers.push(server);
+    });
     this.db = new botdb(config);
     
     // Load modules
@@ -31,13 +34,13 @@ var niobe = function (config) {
     
     this.client.on('motd', function () {
 	self.bootstrap();
-	self.client.send('WHOIS zephrax');
+	self.servers[0].client.send('WHOIS zephrax');
     });
     
     this.client.on('message', function (from, target, message) {
 	if (self.debug)
 	    console.log(from, target, message);
-	self.commandCenter(from, target, message, (target == self.client.opt.nick));
+	self.commandCenter(from, target, message, (target == self.servers[0].client.opt.nick));
     });
 };
 
