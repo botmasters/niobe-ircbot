@@ -9,9 +9,9 @@ var irc = require('irc'),
     child_process = require('child_process'),
     botdb = require('./botdb.js');
 
-process.on('uncaughtException', function(err) {
-    console.log('Uncaught Exception: ' + err);
-});
+//process.on('uncaughtException', function(err) {
+//    console.log('Uncaught Exception: ' + err);
+//});
 
 var niobe = function (config) {
     var self = this;
@@ -54,7 +54,7 @@ niobe.prototype.notice = function (server, target, text) {
     this.clients[server].notice(target, text);
 };
 
-niobe.prototype.addModuleListeners = function (module) {
+niobe.prototype.addModuleListeners = function (server, module) {
     var self = this;
     
     if (this.debug)
@@ -63,7 +63,16 @@ niobe.prototype.addModuleListeners = function (module) {
     // Add listeners
     if (module.listeners) {
 	(Object.keys(module.listeners) || []).forEach(function (listener) {
-	    self.client.on(listener, module.listeners[listener]);
+	    self.clients[server].on(listener, function proc() {
+		var args = arguments,
+		    params = [server];
+		Object.keys(args).forEach(function (key) {
+		    params.push(args[key]);
+		});
+		
+		var result = module.listeners[listener].apply(self, params);
+	    }
+	);
 	});
     }
 };
