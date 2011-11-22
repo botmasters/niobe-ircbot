@@ -8,7 +8,7 @@ var config = {
 		    selfSigned : true,
 		    port : 6697,
 		    nick : 'niobe',
-		    channels: ['#niobe','#kernelpanic'],
+		    channels: ['#niobe'],
 		    db : 'niobe.db'
 		}
 	},

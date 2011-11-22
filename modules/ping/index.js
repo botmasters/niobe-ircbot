@@ -15,6 +15,9 @@ var ping = {
 	    if (target != pingModule.bot.clients[server].opt.nick) { // public message
 		switch (command) {
 		    case '!ping':
+			if (pingModule.bot.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+			    console.log(level);
+			}));
 			ping.cmdPing(server, target, parts[1]);
 			break;
 		    default:

@@ -23,7 +23,7 @@ botdb.prototype.getChannels = function (cb) {
  * Get user from database
  */
 botdb.prototype.getUser = function (user, cb) {
-    var stmt = this.db.get("SELECT id, user, email FROM users WHERE user = ?", [user], function (err, result) {
+    var stmt = this.db.get("SELECT id, user, email, level FROM users WHERE user = ?", [user], function (err, result) {
 	if (!err)
 	    cb(result || false);
     });

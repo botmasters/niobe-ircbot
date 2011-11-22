@@ -69,7 +69,6 @@ niobe.prototype.addModuleListeners = function (server, module) {
 		Object.keys(args).forEach(function (key) {
 		    params.push(args[key]);
 		});
-		
 		var result = module.listeners[listener].apply(self, params);
 	    }
 	);
@@ -151,6 +150,9 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 
 	    case '!join':
 		//if (self.modules.account.get) check for permissions here
+		if (self.modules.account.module.getUserLevel(server, from, channel, message, function (level) {
+		    console.log('Level power: ' + level + ' ===== ');
+		}));
 		if (parts[1] != undefined)
 		    this.clients[server].join(parts[1]);
 		break;
