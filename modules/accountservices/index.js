@@ -65,7 +65,7 @@ var account = {
     checkInAnotherChannel : function (server, curr_chan, nick) {
 	if (nick == accountModule.bot.clients[server].opt.nick) {
 	    if (Object.keys(accountModule.bot.clients[server].chans).length == 1)
-		account.logoutAllUsers();
+		this.userLevel[server] = {};
 	} else {
 	    var active_user = false;
 	     (Object.keys(accountModule.bot.clients[server].chans) || []).forEach(function (chan) {

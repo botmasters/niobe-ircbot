@@ -179,19 +179,71 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 		    if (level > 10) {
 			if (parts[1] != undefined)
-			    this.clients[server].part(parts[1]);
+			    self.clients[server].part(parts[1]);
 		    } else {
 			self.permissionDenied(server, from);
 		    }
 		});
 		break;
 
+	    case '!op':
+		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+		    if (level > 30) {
+			if (parts[1] != undefined)
+			    self.mode(server, channel, '+o', parts[1]);
+			else
+			    self.mode(server, channel, '-o', from);
+		    } else {
+			self.permissionDenied(server, from);
+		    }
+		});
+		break;
+	
+	    case '!deop':
+		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+		    if (level > 30) {
+			if (parts[1] != undefined)
+			    self.mode(server, channel, '-o', parts[1]);
+			else
+			    self.mode(server, channel, '-o', from);
+		    } else {
+			self.permissionDenied(server, from);
+		    }
+		});
+		break;
+	
+	    case '!voice':
+		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+		    if (level > 30) {
+			if (parts[1] != undefined)
+			    self.mode(server, channel, '+v', parts[1]);
+			else
+			    self.mode(server, channel, '+v', from);
+		    } else {
+			self.permissionDenied(server, from);
+		    }
+		});
+		break;
+	
+	    case '!devoice':
+		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+		    if (level > 30) {
+			if (parts[1] != undefined)
+			    self.mode(server, channel, '-v', parts[1]);
+			else
+			    self.mode(server, channel, '-v', from);
+		    } else {
+			self.permissionDenied(server, from);
+		    }
+		});
+		break;
+	
 	    case '!broadcast':
 		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 		    if (level > 20) {
 			delete parts[0];
 			message = parts.join(' ');
-			Object.keys(this.clients[server].chans).forEach(function(chan) {
+			Object.keys(self.clients[server].chans).forEach(function(chan) {
 				    self.clients[server].say(chan, message.trim());
 			});
 		    } else {
@@ -220,6 +272,10 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 		break;
 	}
     }
+};
+
+niobe.prototype.mode = function (server, channel, mode, user) {
+    this.clients[server].send('MODE ' + channel + ' ' + mode + ' ' + user);
 };
 
 niobe.prototype.exec = function (server, command, target, args) {
