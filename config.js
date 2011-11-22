@@ -3,12 +3,12 @@ var config = {
 	    'KernelPanic' :
 		{
 		    debug : true,
-		    host : 'irc.kernelpanic.com.ar',
+		    host : '127.0.0.1',
 		    secure : true,
 		    selfSigned : true,
 		    port : 6697,
 		    nick : 'niobe',
-		    channels: ['#niobe'],
+		    channels: ['#niobe', '#kernelpanic'],
 		    db : 'niobe.db'
 		}
 	},

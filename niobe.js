@@ -187,55 +187,68 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 		break;
 
 	    case '!op':
-		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
-		    if (level > 30) {
-			if (parts[1] != undefined)
-			    self.mode(server, channel, '+o', parts[1]);
-			else
-			    self.mode(server, channel, '-o', from);
-		    } else {
-			self.permissionDenied(server, from);
-		    }
-		});
+		if (self.opInChan(server, channel)) {
+			self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+			    if (level > 30) {
+				if (parts[1] != undefined)
+				    self.mode(server, channel, '+o', parts[1]);
+				else
+				    self.mode(server, channel, '+o', from);
+			    } else {
+				self.permissionDenied(server, from);
+			    }
+			});
+		}
 		break;
 	
 	    case '!deop':
-		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
-		    if (level > 30) {
-			if (parts[1] != undefined)
-			    self.mode(server, channel, '-o', parts[1]);
-			else
-			    self.mode(server, channel, '-o', from);
-		    } else {
-			self.permissionDenied(server, from);
-		    }
-		});
+		if (self.opInChan(server, channel)) {
+			self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+			    if (level > 30) {
+				if (parts[1] != undefined)
+					if (parts[1] == self.clients[server].opt.nick)
+						self.notice(server, from, 'Are you crazy maaaan?');
+					else
+				    		self.mode(server, channel, '-o', parts[1]);
+				else
+				    self.mode(server, channel, '-o', from);
+			    } else {
+				self.permissionDenied(server, from);
+			    }
+			});
+		}
 		break;
 	
 	    case '!voice':
-		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
-		    if (level > 30) {
-			if (parts[1] != undefined)
-			    self.mode(server, channel, '+v', parts[1]);
-			else
-			    self.mode(server, channel, '+v', from);
-		    } else {
-			self.permissionDenied(server, from);
-		    }
-		});
+
+		if (self.opInChan(server, channel)) {
+			self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+			    if (level > 30) {
+				if (parts[1] != undefined)
+				    self.mode(server, channel, '+v', parts[1]);
+				else
+				    self.mode(server, channel, '+v', from);
+			    } else {
+				self.permissionDenied(server, from);
+			    }
+			});
+		}
+
 		break;
 	
 	    case '!devoice':
-		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
-		    if (level > 30) {
-			if (parts[1] != undefined)
-			    self.mode(server, channel, '-v', parts[1]);
-			else
-			    self.mode(server, channel, '-v', from);
-		    } else {
-			self.permissionDenied(server, from);
-		    }
-		});
+		if (self.opInChan(server, channel)) {
+			self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+			    if (level > 30) {
+				if (parts[1] != undefined)
+				    self.mode(server, channel, '-v', parts[1]);
+				else
+				    self.mode(server, channel, '-v', from);
+			    } else {
+				self.permissionDenied(server, from);
+			    }
+			});
+		}
 		break;
 	
 	    case '!broadcast':
@@ -255,7 +268,8 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 	    case 'vater!':
 		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 		    if (level > 10) {
-			self.clients[server].send('KICK ' + channel + ' vater','por gato!');
+			if (self.opInChan(server, channel))
+				self.clients[server].send('KICK ' + channel + ' vater','por gato!');
 		    } else {
 			self.permissionDenied(server, from);
 		    }
@@ -276,6 +290,10 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 
 niobe.prototype.mode = function (server, channel, mode, user) {
     this.clients[server].send('MODE ' + channel + ' ' + mode + ' ' + user);
+};
+
+niobe.prototype.opInChan = function (server, channel) {
+	return (this.clients[server].chans[channel].users[this.clients[server].opt.nick] == '@');
 };
 
 niobe.prototype.exec = function (server, command, target, args) {
