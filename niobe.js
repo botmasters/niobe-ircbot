@@ -69,7 +69,7 @@ niobe.prototype.addModuleListeners = function (server, module) {
 		Object.keys(args).forEach(function (key) {
 		    params.push(args[key]);
 		});
-		var result = module.listeners[listener].apply(self, params);
+		module.listeners[listener].apply(self, params);
 	    }
 	);
 	});
@@ -127,6 +127,10 @@ niobe.prototype.bootstrap = function (server) {
 
 niobe.prototype.permissionDenied = function (server, from) {
     this.clients[server].notice(from, 'Permission denied ;P');
+};
+
+niobe.prototype.invalidArguments = function (server, from) {
+    this.clients[server].notice(from, 'Invalid arguments.');
 };
 
 /**

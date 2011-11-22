@@ -10,6 +10,24 @@ var account = {
     callbacksQueue : {},
     userLevel : {},
     
+    main : function (server, from, target, message) {
+	if (target != accountModule.bot.clients[server].opt.nick) {
+	    var parts = message.trim().split(/ +/),
+		command = parts[0];
+	
+	    switch (command) {
+		case '!access':
+		    account.cmdAccess(server, from, target, parts.length > 1 ? parts.slice(1) : []);
+		    break;
+		    
+		case '':
+		    break;
+		    
+		default:
+	    }
+	}
+    },
+    
     getUserLevel : function (server, from, cb) {
 	var self = this;
 	
@@ -63,6 +81,76 @@ var account = {
 	}
     },
     
+    cmdAccess : function (server, nick, target, params) {
+	if (params[0] == undefined) {
+	    accountModule.bot.clients[server].notice(nick, '-- ACCESS LIST --');
+	} else {
+	    switch (params[0]) {
+		case 'add':
+		    if (params.length  >= 4) {
+			this.getUserLevel(server, nick, function (server, level) {
+			    if (level > 90) {
+				accountModule.bot.dbs[server].getUser(params[1], function (user) {
+				    if (user) {
+					accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' already exists');
+				    } else {
+					var userData = [params[1], params[2], parseInt(params[3])];
+					accountModule.bot.dbs[server].newUser(userData, function () {
+					    accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' added with level ' + params[3]);
+					});
+				    }
+				});
+			    } else {
+				accountModule.bot.permissionDenied(server, nick);
+			    }
+			});
+		    } else {
+			accountModule.bot.invalidArguments(server, nick);
+		    }
+		    break;
+		    
+		case 'set':
+		    if (params.length  >= 4) {
+			this.getUserLevel(server, nick, function (server, level) {
+			    if (level > 90) {
+				accountModule.bot.dbs[server].getUser(params[1], function (user) {
+				    if (user) {
+					switch (params[2]) {
+					    case 'level':
+						var level = parseInt(params[3]);
+						accountModule.bot.dbs[server].setUserProp(params[1], 'level', level, function () {
+						    if (level >= 90) {
+							accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' ROOOCK!!! now is level ' + level);
+							accountModule.bot.clients[server].notice(params[1], 'You rocks brotha!');
+						    } else {
+							accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' now is level ' + level);
+						    }
+						});
+						break;
+						
+					    default:
+					}
+				    } else {
+					accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' not found.');
+				    }
+				});
+			    } else {
+				accountModule.bot.permissionDenied(server, nick);
+			    }
+			});
+		    } else {
+			accountModule.bot.invalidArguments(server, nick);
+		    }
+		    break;
+		
+		case 'del':
+		    break;
+		    
+		default:
+	    }
+	}
+    },
+    
     whois : function (server, data) {
 	if (account.callbacksQueue[server][data.nick] instanceof Array && account.callbacksQueue[server][data.nick].length > 0) {
 	    (account.callbacksQueue[server][data.nick] || []).forEach(function (callback) {
@@ -98,6 +186,7 @@ var accountModule = {
     module : account,
     
     listeners : {
+	message : account.main,
 	part : account.part,
 	kick : account.kick,
 	whois : account.whois
