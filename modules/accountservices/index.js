@@ -63,10 +63,6 @@ var account = {
 	}
     },
     
-    logoutAllUsers : function () {
-	
-    },
-
     whois : function (server, data) {
 	if (account.callbacksQueue[server][data.nick] instanceof Array && account.callbacksQueue[server][data.nick].length > 0) {
 	    (account.callbacksQueue[server][data.nick] || []).forEach(function (callback) {
@@ -76,26 +72,32 @@ var account = {
 	}
     },
     
-    join : function (server, chan, nick) {
-	if (nick == accountModule.bot.clients[server].opt.nick) {
-	    console.log('eaeaaaaa ' + chan);
+    part : function (server, chan, nick) {
+	if (!account.checkInAnotherChannel(server, chan, nick)) {
+	    if (account.userLevel[server] != undefined && account.userLevel[server][nick] != undefined) {
+		console.log('Logging out ' + nick + ' from ' + chan + '@' + server);
+		console.log(account.userLevel);
+		delete account.userLevel[server][nick];
+	    }
 	}
     },
     
-    part : function (server, chan, nick) {
-	
-    },
-    
     kick : function (server, chan, nick, reason) {
-	
+	if (!account.checkInAnotherChannel(server, chan, nick)) {
+	    if (account.userLevel[server] != undefined && account.userLevel[server][nick] != undefined) {
+		console.log('Logging out ' + nick + ' from ' + chan + '@' + server);
+		console.log(account.userLevel);
+		delete account.userLevel[server][nick];
+	    }
+	}
     }
     
 };
 
 var accountModule = {
     module : account,
+    
     listeners : {
-	join : account.join,
 	part : account.part,
 	kick : account.kick,
 	whois : account.whois

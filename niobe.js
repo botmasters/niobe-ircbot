@@ -125,6 +125,10 @@ niobe.prototype.bootstrap = function (server) {
     });
 };
 
+niobe.prototype.permissionDenied = function (server, from) {
+    this.clients[server].notice(from, 'Permission denied ;P');
+};
+
 /**
  * Niobe Command Processing Center
  * @param string from User who sent the command
@@ -149,41 +153,63 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 		break;
 
 	    case '!join':
-		//if (self.modules.account.get) check for permissions here
-		if (self.modules.account.module.getUserLevel(server, from, channel, message, function (level) {
-		    console.log('Level power: ' + level + ' ===== ');
+		if (self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+		    if (level > 10) {
+			if (parts[1] != undefined)
+			    self.clients[server].join(parts[1]);
+		    } else {
+			self.permissionDenied(server, from);
+		    }
 		}));
-		if (parts[1] != undefined)
-		    this.clients[server].join(parts[1]);
 		break;
 
 	    case '!channels':
 		this.cmdChannels(server, parts, channel);
 		break;
-
+	
 	    case '!debug':
 		console.log(this.clients[server].chans);
 		break;
-
+	
 	    case '!part':
-		if (parts[1] != undefined)
-		    this.clients[server].part(parts[1]);
+		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+		    if (level > 10) {
+			if (parts[1] != undefined)
+			    this.clients[server].part(parts[1]);
+		    } else {
+			self.permissionDenied(server, from);
+		    }
+		});
 		break;
 
 	    case '!broadcast':
-		delete parts[0];
-		message = parts.join(' ');
-		Object.keys(this.clients[server].chans).forEach(function(chan) {
-			    self.clients[server].say(chan, message.trim());
-    		});
+		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+		    if (level > 20) {
+			delete parts[0];
+			message = parts.join(' ');
+			Object.keys(this.clients[server].chans).forEach(function(chan) {
+				    self.clients[server].say(chan, message.trim());
+			});
+		    } else {
+			self.permissionDenied(server, from);
+		    }
+		});
 		break;
 
 	    case 'vater!':
-		this.clients[server].send('KICK ' + channel + ' vater','por gato!');
+		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+		    if (level > 10) {
+			this.clients[server].send('KICK ' + channel + ' vater','por gato!');
+		    } else {
+			self.permissionDenied(server, from);
+		    }
+		});
 		break;
 	    case 'ea':
 	    case 'eaea':
 	    case 'aza':
+	    case 'zeph':
+	    case 'zephrax':
 		this.clients[server].say(channel, 'eaea');
 		break;
 	    default:

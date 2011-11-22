@@ -41,6 +41,8 @@ var ping = {
 };
 
 var pingModule = {
+    module : ping,
+    
     listeners : {
 	message : ping.main
     }
