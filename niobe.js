@@ -255,7 +255,7 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 	    case 'vater!':
 		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 		    if (level > 10) {
-			this.clients[server].send('KICK ' + channel + ' vater','por gato!');
+			self.clients[server].send('KICK ' + channel + ' vater','por gato!');
 		    } else {
 			self.permissionDenied(server, from);
 		    }
