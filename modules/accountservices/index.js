@@ -8,13 +8,15 @@ var crypto = require('crypto');
 
 var account = {
     callbacksQueue : {},
-    userStatus : {},
+    userLevel : {},
     
     getUserLevel : function (server, from, cb) {
-	if (account.userStatus[server] == undefined)
-	    account.userStatus[server] = {};
+	var self = this;
 	
-	if (account.userStatus[server][from] == undefined) {
+	if (account.userLevel[server] == undefined)
+	    account.userLevel[server] = {};
+	
+	if (account.userLevel[server][from] == undefined) {
 	    
 	    if (this.callbacksQueue[server] == undefined)
 		this.callbacksQueue[server] = {};
@@ -24,14 +26,21 @@ var account = {
 	    
 	    
 	    var afterWhois = function(server, data) {
-		accountModule.bot.dbs[server].getUser(data.nick, function (user) {
-		    cb(server, user.level != undefined ? user.level : 0);
-		});
+		if (data.account != undefined) {
+		    accountModule.bot.dbs[server].getUser(data.nick, function (user) {
+			self.userLevel[server][from] = user.level != undefined ? user.level : 0;
+			cb(server, self.userLevel[server][from]);
+		    });
+		} else {
+		    cb(server, -1);
+		}
 	    }
 	    
 	    this.callbacksQueue[server][from].push(afterWhois)
 	    
 	    accountModule.bot.clients[server].send('WHOIS ' + from);
+	} else {
+	    cb(server, this.userLevel[server][from]);
 	}
     },
     
@@ -63,6 +72,7 @@ var account = {
 	    (account.callbacksQueue[server][data.nick] || []).forEach(function (callback) {
 		callback(server, data);
 	    });
+	    account.callbacksQueue[server][data.nick] = [];
 	}
     },
     

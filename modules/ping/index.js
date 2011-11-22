@@ -16,9 +16,12 @@ var ping = {
 		switch (command) {
 		    case '!ping':
 			if (pingModule.bot.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
-			    console.log(level);
+			    if (level > 0) {
+				ping.cmdPing(server, target, parts[1]);
+			    } else {
+				pingModule.bot.clients[server].notice(from, 'Ha-ha-ha!?');
+			    }
 			}));
-			ping.cmdPing(server, target, parts[1]);
 			break;
 		    default:
 		}
