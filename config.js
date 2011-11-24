@@ -2,7 +2,6 @@ var config = {
 	servers : {
 	    'KernelPanic' :
 		{
-		    debug : true,
 		    host : '127.0.0.1',
 		    secure : true,
 		    selfSigned : true,
