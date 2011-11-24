@@ -1,0 +1,21 @@
+{
+  "author": "zephrax <zephrax@gmail.com> (http://www.kernelpanic.com.ar/)",
+  "name": "niobe-ircbot",
+  "description": "Modular IRC Bot Written in NodeJS",
+  "version": "0.0.1",
+  "homepage": "http://www.kernelpanic.com.ar/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/zephrax/niobe-ircbot.git"
+  },
+  "main": "niobe.js",
+  "engines": {
+    "node": ">=0.4.12"
+  },
+  "dependencies": {
+	"irc" : ">= 0.0.1",
+	"sqlite3" : ">= 2.0.0"
+  },
+  "devDependencies": {}
+}
+

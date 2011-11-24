@@ -69,4 +69,10 @@ botdb.prototype.setUserProp = function (user, prop, value, cb) {
     });
 }
 
+botdb.prototype.getAccessList = function (cb) {
+    var stmt = this.db.all('SELECT * FROM users', function (err, users) {
+	cb(err, users);
+    });
+};
+
 module.exports = botdb;

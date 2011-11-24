@@ -5,13 +5,8 @@
  */
 
 var irc = require('irc'),
-    config = require('./config.js'),
     child_process = require('child_process'),
     botdb = require('./botdb.js');
-
-//process.on('uncaughtException', function(err) {
-//    console.log('Uncaught Exception: ' + err);
-//});
 
 var niobe = function (config) {
     var self = this;
@@ -302,4 +297,5 @@ niobe.prototype.cmdChannels = function (server, parts, channel) {
     });
 };
 
-var bot = new niobe(config);
+module.exports = niobe;
+

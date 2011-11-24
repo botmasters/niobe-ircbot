@@ -84,6 +84,30 @@ var account = {
     cmdAccess : function (server, nick, target, params) {
 	if (params[0] == undefined) {
 	    accountModule.bot.clients[server].notice(nick, '-- ACCESS LIST --');
+	    accountModule.bot.dbs[server].getAccessList(function (err, result) {
+		if (!err && result) {
+		    var output = [],
+			count = 0;
+
+		    (result).forEach(function (user) {
+			count++;
+			if (count%5 == 0) {
+			    output.push(user.user + ' (' + user.level + ')');
+			    accountModule.bot.clients[server].say(target, output.join(', '));
+			    count = 0;
+			    output = [];
+			} else {
+			    output.push(user.user + ' (' + user.level + ')');
+			}
+		    });
+		    
+		    if (count != 0) {
+			accountModule.bot.clients[server].say(target, output.join(', '));
+			count = 0;
+			output = '';
+		    }
+		}
+	    });
 	} else {
 	    switch (params[0]) {
 		case 'add':
