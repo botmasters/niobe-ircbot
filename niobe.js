@@ -5,8 +5,13 @@
  */
 
 var irc = require('irc'),
+    config = require('./config.js'),
     child_process = require('child_process'),
     botdb = require('./botdb.js');
+
+//process.on('uncaughtException', function(err) {
+//    console.log('Uncaught Exception: ' + err);
+//});
 
 var niobe = function (config) {
     var self = this;
@@ -259,12 +264,15 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 		    }
 		});
 		break;
-
+	    case 'hola' :
+		this.clients[server].say(channel, '("\\(^o^)/")'); 
+		//added by Vsg 
+		break;
 	    case 'vater!':
 		self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 		    if (level > 10) {
 			if (self.opInChan(server, channel) && self.clients[server].chans[channel].users['vater'] != undefined)
-			    self.clients[server].send('KICK ' + channel + ' vater','por gato!');
+				self.clients[server].send('KICK ' + channel + ' vater','por gato!');
 		    } else {
 			self.permissionDenied(server, from);
 		    }
@@ -314,5 +322,4 @@ niobe.prototype.cmdChannels = function (server, parts, channel) {
     });
 };
 
-module.exports = niobe;
-
+var bot = new niobe(config);

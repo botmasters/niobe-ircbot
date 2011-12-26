@@ -2,17 +2,17 @@ var config = {
 	servers : {
 	    'KernelPanic' :
 		{
-		    host : '127.0.0.1',
+		    host : 'irc.kernelpanic.com.ar',
 		    secure : true,
 		    selfSigned : true,
 		    port : 6697,
-		    nick : 'niobe',
-		    channels: ['#niobe', '#kernelpanic'],
+		    nick : 'niobe-dev',
+		    channels: ['#niobe'],
 		    db : 'niobe.db'
 		}
 	},
 	debug : true,
-	modules : [ 'hash', 'ping', 'accountservices' ],
+	modules : [ 'hash', 'ping', 'accountservices', 'explain' ],
 	modulesPath : './modules/'
 };
 

@@ -13,6 +13,7 @@ sqlite3 dbname.db
 
 CREATE TABLE channels (id INTEGER PRIMARY KEY ASC, channel TEXT);
 CREATE TABLE users (id INTEGER PRIMARY KEY ASC, user TEXT, email TEXT, level INTEGER DEFAULT 10);
+CREATE TABLE definitions (id integer primary key asc, user text, name text, description text);
 </pre>
 
 ##Usage
