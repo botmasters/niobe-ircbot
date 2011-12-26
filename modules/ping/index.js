@@ -45,6 +45,10 @@ var pingModule = {
     
     listeners : {
 	message : ping.main
+    },
+    
+    help : function (server, from) {
+        this.bot.clients[server].notice(from, '!ping host');
     }
 };
 

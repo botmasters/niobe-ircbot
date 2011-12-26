@@ -44,6 +44,10 @@ var hash = {
 var hashModule = {
     listeners : {
 	message : hash.main
+    },
+    
+    help : function (server, from) {
+        this.bot.clients[server].notice(from, '!hash [md5|sha1] texto');
     }
 };
 

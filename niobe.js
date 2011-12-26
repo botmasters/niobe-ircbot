@@ -25,7 +25,7 @@ var niobe = function (config) {
     
     Object.keys(config.servers).forEach(function(key) {
 	var server = config.servers[key];
-        self.clients[key] = new irc.Client(server.host, server.nick, { channels: server.channels, secure : server.secure, selfSigned: server.selfSigned, debug: server.debug, port : server.port, retryDelay: 5000 });
+        self.clients[key] = new irc.Client(server.host, server.nick, {channels: server.channels, secure : server.secure, selfSigned: server.selfSigned, debug: server.debug, port : server.port, retryDelay: 5000});
 	self.dbs[key] = new botdb(config.servers[key]);
 	
 	self.clients[key].on('motd', function () {
@@ -285,6 +285,13 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 	    case 'zephrax':
 		this.clients[server].say(channel, 'eaea');
 		break;
+            case '!help':
+                this.clients[server].notice(from, '- Command list -');
+                (Object.keys(self.modules)).forEach(function (item) {
+                    if (undefined != self.modules[item].help)
+                        self.modules[item].help(server, from);
+                });
+                break;
 	    default:
 		break;
 	}

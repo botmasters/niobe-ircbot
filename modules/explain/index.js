@@ -33,6 +33,9 @@ var Explain = {
 			    }
 			}));
 			break;
+		    case '!saber':
+                        Explain.cmdSaber(server, from, target, parts.slice(1).join(' '));
+			break;
 		    default:
 		}
 	    }
@@ -103,12 +106,31 @@ var Explain = {
                 }
             }
         });
+    },
+    
+    /**
+     * Handles saber command
+     */
+    cmdSaber : function (server, from, target, message) {
+        var stmt = explainModule.bot.dbs[server].db.all('SELECT * FROM definitions', function (err, result) {
+            if (!err) {
+                var res = result.map(function (item) { return item.name; });
+                explainModule.bot.clients[server].say(target, 'Conozco: ' + res.join(', '));
+            }
+        });
     }
 };
 
 var explainModule = {
     listeners : {
 	message : Explain.main
+    },
+    
+    help : function (server, from) {
+        this.bot.clients[server].notice(from, '!aprende [algo] es [descripción]');
+        this.bot.clients[server].notice(from, '!explica [algo]');
+        this.bot.clients[server].notice(from, '!olvida [algo]');
+        this.bot.clients[server].notice(from, '!saber');
     }
 };
 
