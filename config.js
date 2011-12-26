@@ -6,13 +6,13 @@ var config = {
 		    secure : true,
 		    selfSigned : true,
 		    port : 6697,
-		    nick : 'niobe',
-		    channels: ['#kernelpanic'],
+		    nick : 'niobe-dev',
+		    channels: ['#niobe'],
 		    db : 'niobe.db'
 		}
 	},
 	debug : true,
-	modules : [ 'hash', 'ping', 'accountservices', 'explain' ],
+	modules : [ 'hash', 'ping', 'accountservices', 'explain', 'google' ],
 	modulesPath : './modules/'
 };
 
