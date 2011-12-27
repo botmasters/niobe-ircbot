@@ -50,6 +50,16 @@ botdb.prototype.newUser = function (data, cb) {
 };
 
 /**
+ * Delete user from database
+ */
+botdb.prototype.delUser = function (user, cb) {
+    var stmt = this.db.prepare('DELETE FROM users WHERE user = ?');
+    stmt.run(user, function (result) {
+	cb(result);
+    });
+};
+
+/**
  * Set user permissions
  */
 botdb.prototype.setUserPerms = function (user, level, cb) {

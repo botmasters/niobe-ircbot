@@ -14,8 +14,8 @@
   },
   "dependencies": {
 	"irc" : ">= 0.0.1",
-	"sqlite3" : ">= 2.0.0"
+	"sqlite3" : ">= 2.0.0",
+        "request" : ">= 2.2.9"
   },
   "devDependencies": {}
 }
-

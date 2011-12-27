@@ -295,6 +295,15 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 	    default:
 		break;
 	}
+	if (message.match(/navidad|papa\snoel|santa\sclaus/i)) {
+		this.clients[server].say(channel, 'Ho-ho-hoo!');
+	}
+	if (message.match(/faso/i))
+		this.clients[server].say(channel, 'nono me pega mal y flasheo con el chupacabras!');
+	if (message.match(/tururu/i))
+		this.clients[server].say(channel, 'Oh no, this is the road\nSaid this is the road\nThis is the road to hell!');
+	if (message.match(/cogollo/i))
+		this.clients[server].say(channel, 'convida vieja!');
     }
 };
 

@@ -168,6 +168,26 @@ var account = {
 		    break;
 		
 		case 'del':
+		    if (params.length  >= 2) {
+			this.getUserLevel(server, nick, function (server, level) {
+			    if (level > 90) {
+				accountModule.bot.dbs[server].getUser(params[1], function (user) {
+				    if (user) {
+					var userData = [params[1], params[2], parseInt(params[3])];
+					accountModule.bot.dbs[server].delUser(params[1], function () {
+					    accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' removed');
+					});
+				    } else {
+                                        accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' not found');
+				    }
+				});
+			    } else {
+				accountModule.bot.permissionDenied(server, nick);
+			    }
+			});
+		    } else {
+			accountModule.bot.invalidArguments(server, nick);
+		    }
 		    break;
 		    
 		default:
