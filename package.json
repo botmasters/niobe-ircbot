@@ -2,7 +2,7 @@
   "author": "zephrax <zephrax@gmail.com> (http://www.kernelpanic.com.ar/)",
   "name": "niobe-ircbot",
   "description": "Modular IRC Bot Written in NodeJS",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "http://www.kernelpanic.com.ar/",
   "repository": {
     "type": "git",
