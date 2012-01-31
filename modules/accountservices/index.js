@@ -12,20 +12,21 @@ var account = {
     
     main : function (server, from, target, message) {
 	if (target != accountModule.bot.clients[server].opt.nick) {
-	    var parts = message.trim().split(/ +/),
-		command = parts[0];
-	
-	    switch (command) {
-		case '!access':
-		    account.cmdAccess(server, from, target, parts.length > 1 ? parts.slice(1) : []);
-		    break;
-		    
-		case '':
-		    break;
-		    
-		default:
-	    }
-	}
+	} else { // private message
+            var parts = message.trim().split(/ +/),
+                command = parts[0];
+
+            switch (command) {
+                case 'access':
+                    account.cmdAccess(server, from, target, parts.length > 1 ? parts.slice(1) : []);
+                    break;
+                
+                case '':
+                    break;
+
+                default:
+            }
+        }
     },
     
     getUserLevel : function (server, from, cb) {
@@ -45,6 +46,7 @@ var account = {
 	    
 	    var afterWhois = function(server, data) {
 		if (data.account != undefined) {
+                    console.log(data.account);
 		    accountModule.bot.dbs[server].getUser(data.nick, function (user) {
 			self.userLevel[server][from] = user.level != undefined ? user.level : 0;
 			cb(server, self.userLevel[server][from]);
@@ -93,7 +95,7 @@ var account = {
 			count++;
 			if (count%5 == 0) {
 			    output.push(user.user + ' (' + user.level + ')');
-			    accountModule.bot.clients[server].say(target, output.join(', '));
+			    accountModule.bot.clients[server].notice(nick, output.join(', '));
 			    count = 0;
 			    output = [];
 			} else {
@@ -142,14 +144,18 @@ var account = {
 					switch (params[2]) {
 					    case 'level':
 						var level = parseInt(params[3]);
-						accountModule.bot.dbs[server].setUserProp(params[1], 'level', level, function () {
-						    if (level >= 90) {
-							accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' ROOOCK!!! now is level ' + level);
-							accountModule.bot.clients[server].notice(params[1], 'You rocks brotha!');
-						    } else {
-							accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' now is level ' + level);
-						    }
-						});
+                                                if (level < 0 || level > 99) {
+                                                    accountModule.bot.clients[server].notice(nick, 'Invalid level ;) (valid values 0-99)');
+                                                } else {
+                                                    accountModule.bot.dbs[server].setUserProp(params[1], 'level', level, function () {
+                                                        if (level >= 90) {
+                                                            accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' ROOOCK!!! now is level ' + level);
+                                                            accountModule.bot.clients[server].notice(params[1], 'You rocks brotha!');
+                                                        } else {
+                                                            accountModule.bot.clients[server].notice(nick, 'User ' + params[1] + ' now is level ' + level);
+                                                        }
+                                                    });
+                                                }
 						break;
 						
 					    default:
@@ -218,12 +224,17 @@ var account = {
 	if (!account.checkInAnotherChannel(server, chan, nick)) {
 	    if (account.userLevel[server] != undefined && account.userLevel[server][nick] != undefined) {
 		console.log('Logging out ' + nick + ' from ' + chan + '@' + server);
-		console.log(account.userLevel);
 		delete account.userLevel[server][nick];
 	    }
 	}
-    }
+    },
     
+    nick : function (server, oldnick, newnick, channels) {
+        if (account.userLevel[server] != undefined && account.userLevel[server][oldnick] != undefined) {
+            console.log('Logging out ' + oldnick + ' @' + server);
+            delete account.userLevel[server][oldnick];
+        }
+    }
 };
 
 var accountModule = {
@@ -233,7 +244,8 @@ var accountModule = {
 	message : account.main,
 	part : account.part,
 	kick : account.kick,
-	whois : account.whois
+	whois : account.whois,
+        nick : account.nick
     }
 };
 

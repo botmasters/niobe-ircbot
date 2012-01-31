@@ -12,7 +12,7 @@ var config = {
 		}
 	},
 	debug : true,
-	modules : [ 'hash', 'ping', 'accountservices', 'explain', 'google' ],
+	modules : [ 'hash', 'ping', 'accountservices', 'explain', 'google', 'exploit-db', 'geoip' ],
 	modulesPath : './modules/'
 };
 
