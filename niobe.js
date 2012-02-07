@@ -17,6 +17,7 @@ var niobe = function (config) {
 	var self = this;
     
 	this.debug = config.debug || false;
+	this.config = config;
 	this.modules = {};
 	this.modulesPath = config.modulesPath;
 	this.identifiedUsers = [];
@@ -191,6 +192,10 @@ niobe.prototype.bootstrap = function (server) {
 			});
 		}
 	});
+	
+	if (this.config.servers[server].oper) {
+		this.clients[server].send('OPER ' + this.config.servers[server].oper.user + ' ' + this.config.servers[server].oper.pass);
+	}
 };
 
 niobe.prototype.permissionDenied = function (server, from) {
@@ -384,6 +389,10 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 
 niobe.prototype.mode = function (server, channel, mode, user) {
 	this.clients[server].send('MODE ' + channel + ' ' + mode + ' ' + user);
+};
+
+niobe.prototype.samode = function (server, channel, mode, user) {
+	this.clients[server].send('SAMODE ' + channel + ' ' + mode + ' ' + user);
 };
 
 niobe.prototype.opInChan = function (server, channel) {

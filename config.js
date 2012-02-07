@@ -8,7 +8,11 @@ var config = {
 		    port : 6697,
 		    nick : 'niobe-dev',
 		    channels: ['#niobe'],
-		    db : 'niobe.db'
+		    db : 'niobe.db',
+			oper : {
+				user : 'root',
+				pass : ''
+			}
 		}
 	},
 	debug : true,
