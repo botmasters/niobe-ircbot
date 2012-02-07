@@ -5,37 +5,11 @@
  */
 
 var ping = {
-    main : function (server, from, target, message) {
-	console.log(message);
-	if (undefined != message.trim) {
-	    var parts = message.trim().split(/ +/);
-	    var command = parts[0],
-		host = parts[1];
-
-	    if (target != pingModule.bot.clients[server].opt.nick) { // public message
-		switch (command) {
-		    case '!ping':
-			if (pingModule.bot.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
-			    if (level > 0) {
-				ping.cmdPing(server, target, parts[1]);
-			    } else {
-				pingModule.bot.clients[server].notice(from, 'Ha-ha-ha!?');
-			    }
-			}));
-			break;
-		    default:
-		}
-	    }
-	}
-    },
-    
     /**
-     * Handles users registration
-     * @param string nick User being registered
-     * @param array params Command parameters
+     * Handles ping command
      */
-    cmdPing : function (server, target, host) {
-	pingModule.bot.exec(server, 'ping', target, ['-c4', host])
+    cmdPing : function (server, from, target, host) {
+		pingModule.bot.exec(server, 'ping', target, ['-c4', host])
     }
     
 };
@@ -43,9 +17,11 @@ var ping = {
 var pingModule = {
     module : ping,
     
-    listeners : {
-	message : ping.main
-    },
+	commands : {
+		chan : {
+			'!ping' : { level : 10 , callback : ping.cmdPing }
+		}
+	},
     
     help : function (server, from) {
         this.bot.clients[server].notice(from, '!ping host');

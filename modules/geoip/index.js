@@ -8,22 +8,6 @@ var request = require('request'),
     querystring = require('querystring');
 
 var geoip = {
-    main : function (server, from, target, message) {
-	if (undefined != message.trim) {
-	    var parts = message.trim().split(/ +/);
-	    var command = parts[0];
-
-	    if (target != geoipModule.bot.clients[server].opt.nick) { // public message
-		switch (command) {
-		    case '!geoip':
-			geoip.cmdGeoip(server, from, target, parts[1]);
-			break;
-		    default:
-		}
-	    }
-	}
-    },
-    
     /**
      * Handles geoip process
      */
@@ -51,10 +35,12 @@ var geoip = {
 };
 
 var geoipModule = {
-    listeners : {
-	message : geoip.main
-    },
-    
+    commands : {
+		chan : {
+			'!geoip' : { level : 10, callback : geoip.cmdGeoip }
+		}
+	},
+	
     help : function (server, from) {
         this.bot.clients[server].notice(from, '!geoip address');
     }

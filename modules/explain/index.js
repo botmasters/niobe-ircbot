@@ -5,43 +5,6 @@
  */
 
 var Explain = {
-    main : function (server, from, target, message) {
-	if (undefined != message.trim()) {
-	    var parts = message.trim().split(/ +/);
-	    var command = parts[0];
-
-	    if (target != explainModule.bot.clients[server].opt.nick) { // public message
-		switch (command) {
-		    case '!explica':
-			Explain.cmdExplica(server, from, target, parts.slice(1).join(' '));
-			break;
-		    case '!aprende':
-			if (explainModule.bot.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
-			    if (level > 0) {
-                                Explain.cmdAprende(server, from, target, parts.slice(1).join(' '));
-			    } else {
-				explainModule.bot.clients[server].notice(from, 'Ha-ha-ha!?');
-			    }
-			}));
-			break;
-		    case '!olvida':
-			if (explainModule.bot.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
-			    if (level > 0) {
-                                Explain.cmdOlvida(server, from, target, parts.slice(1).join(' '));
-			    } else {
-				explainModule.bot.clients[server].notice(from, 'Ha-ha-ha!?');
-			    }
-			}));
-			break;
-		    case '!saber':
-                        Explain.cmdSaber(server, from, target, parts.slice(1).join(' '));
-			break;
-		    default:
-		}
-	    }
-	}
-    },
-    
     /**
      * Handles aprende command
      */
@@ -122,10 +85,15 @@ var Explain = {
 };
 
 var explainModule = {
-    listeners : {
-	message : Explain.main
-    },
-    
+	commands : {
+		chan : {
+			'!aprende' : { level : 50 , callback : Explain.cmdAprende },
+			'!explica' : { level : 0 , callback : Explain.cmdExplica },
+			'!olvida' : { level : 50 , callback : Explain.cmdOlvida },
+			'!saber' : { level : 10 , callback : Explain.cmdSaber }
+		}
+	},
+	
     help : function (server, from) {
         this.bot.clients[server].notice(from, '!aprende [algo] es [descripción]');
         this.bot.clients[server].notice(from, '!explica [algo]');
