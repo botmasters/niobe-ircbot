@@ -196,6 +196,10 @@ niobe.prototype.bootstrap = function (server) {
 	if (this.config.servers[server].oper) {
 		this.clients[server].send('OPER ' + this.config.servers[server].oper.user + ' ' + this.config.servers[server].oper.pass);
 	}
+	
+	if (this.config.servers[server].nickserv) {
+		this.clients[server].say('NickServ', 'IDENTIFY ' + this.config.servers[server].nickserv.pass);
+	}
 };
 
 niobe.prototype.permissionDenied = function (server, from) {
@@ -328,7 +332,20 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 					});
 				}
 				break;
-	
+
+			case '!kick':
+				if (self.opInChan(server, channel)) {
+					self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+						if (level > 50) {
+							if (parts[1] != undefined)
+								self.clients[server].send('KICK ' + channel, parts[1], parts.slice(2));
+						} else {
+							self.permissionDenied(server, from);
+						}
+					});
+				}
+				break;
+			
 			case '!broadcast':
 				self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 					if (level > 20) {

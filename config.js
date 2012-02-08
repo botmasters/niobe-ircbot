@@ -10,13 +10,18 @@ var config = {
 		    channels: ['#niobe'],
 		    db : 'niobe.db',
 			oper : {
-				user : 'root',
+				user : '',
 				pass : ''
+			},
+                        
+			nickserv : {
+				user : '',
+				pass: ''
 			}
 		}
 	},
 	debug : true,
-	modules : [ 'hash', 'ping', 'accountservices', 'explain', 'google', 'exploit-db', 'geoip' ],
+	modules : [ 'hash', 'ping', 'accountservices', 'explain', 'google', 'exploit-db', 'geoip', 'servicecmds' ],
 	modulesPath : './modules/'
 };
 
