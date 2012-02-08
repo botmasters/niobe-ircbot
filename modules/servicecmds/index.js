@@ -73,7 +73,7 @@ var servicecmdsModule = {
 	},
     
     help : function (server, from) {
-        //this.bot.clients[server].notice(from, '!ping host');
+        this.bot.clients[server].notice(from, 'Service commands: !ban !unban !sop !sdeop !svoice !sdevoice');
     }
 };
 
