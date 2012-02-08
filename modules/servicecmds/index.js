@@ -8,33 +8,40 @@
 var servicecmds = {
 
     cmdBan : function (server, from, channel, message) {
-		var parts = message.split(' ');
-		servicecmdsModule.bot.clients[server].say('NickServ', 'BAN ' + channel + ' ' + parts[0]);
+		var parts = message.split(' '),
+			nick = parts[0] ? parts[0] : from;
+		console.log('baaan');
+		servicecmdsModule.bot.clients[server].say('ChanServ', 'BAN ' + channel + ' ' + nick);
     },
     
     cmdUnban : function (server, from, channel, message) {
-		var parts = message.split(' ');
-		servicecmdsModule.bot.clients[server].say('NickServ', 'UNBAN ' + channel + ' ' + parts[0]);
+		var parts = message.split(' '),
+			nick = parts[0] ? parts[0] : from;
+		servicecmdsModule.bot.clients[server].say('ChanServ', 'UNBAN ' + channel + ' ' + nick);
     },
 
     cmdOp : function (server, from, channel, message) {
-		var parts = message.split(' ');
-		servicecmdsModule.bot.clients[server].say('NickServ', 'OP ' + channel + ' ' + parts[0]);
+		var parts = message.split(' '),
+			nick = parts[0] ? parts[0] : from;
+		servicecmdsModule.bot.clients[server].say('ChanServ', 'OP ' + channel + ' ' + nick);
 	},
 	
     cmdDeop : function (server, from, channel, message) {
-		var parts = message.split(' ');
-		servicecmdsModule.bot.clients[server].say('NickServ', 'DEOP ' + channel + ' ' + parts[0]);
+		var parts = message.split(' '),
+			nick = parts[0] ? parts[0] : from;
+		servicecmdsModule.bot.clients[server].say('ChanServ', 'DEOP ' + channel + ' ' + nick);
 	},
 	
     cmdVoice : function (server, from, channel, message) {
-		var parts = message.split(' ');
-		servicecmdsModule.bot.clients[server].say('NickServ', 'VOICE ' + channel + ' ' + parts[0]);
+		var parts = message.split(' '),
+			nick = parts[0] ? parts[0] : from;
+		servicecmdsModule.bot.clients[server].say('ChanServ', 'VOICE ' + channel + ' ' + nick);
 	},
 	
     cmdDevoice : function (server, from, channel, message) {
-		var parts = message.split(' ');
-		servicecmdsModule.bot.clients[server].say('NickServ', 'DEVOICE ' + channel + ' ' + parts[0]);
+		var parts = message.split(' '),
+			nick = parts[0] ? parts[0] : from;
+		servicecmdsModule.bot.clients[server].say('ChanServ', 'DEVOICE ' + channel + ' ' + nick);
 	},
 	
 	cmdPanic : function (server, from, channel, message) {

@@ -42,6 +42,7 @@ var niobe = function (config) {
 		});
 	
 		self.clients[key].on('message', function (from, target, message) {
+			console.log(message);
 			if (self.debug)
 				self.commandCenter(key, from, target, message, (target == self.clients[key].opt.nick));
 		});
