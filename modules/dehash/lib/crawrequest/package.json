@@ -1,0 +1,14 @@
+{ "name" : "crawrequest"
+, "description" : "Request url for extract content"
+, "tags" : ["http", "simple", "util", "utility"]
+, "version" : "0.1.0"
+, "author" : "Oscar Gentileza, aka exos <tioscar@gmail.com>"
+, "repository" :
+  { "type" : "git"
+  , "url" : "http://github.com/mikeal/request.git"
+  }
+, "bugs" :
+  { "url" : "http://github.com/mikeal/request/issues" }
+, "engines" : ["node >= 0.3.6"]
+, "dependencies": ["request >= 2.9.153"]
+}
