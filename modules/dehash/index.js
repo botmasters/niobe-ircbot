@@ -8,22 +8,6 @@ var dehash = require('./lib/dehash');
 var sources = require('./sources');
 
 
-for (i in sources) {
-
-        (function (i) {
-                dehash(hash, type, sources[i], function (err, data) {
-                        if (err) {
-                                console.log(i + " [error] :" +  err);
-                        } else {
-                                console.log(i + ":" + data);
-                        }
-                });
-        })(i);
-
-}
-
-
-
 
 var DeHash = {
 
