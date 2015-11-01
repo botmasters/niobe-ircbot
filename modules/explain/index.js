@@ -12,7 +12,7 @@ var Explain = {
         var parts = message.split(/es/i),
             name = parts[0].trim(),
             description = parts.splice(1).join('es').trim();
-        
+
         var stmt = explainModule.bot.dbs[server].db.get('SELECT 1 FROM definitions WHERE name = ?', [name], function (err, result) {
             if (!err) {
                 if (undefined == result) {
@@ -28,13 +28,13 @@ var Explain = {
             }
         });
     },
-    
+
     /**
      * Handles explica command
      */
     cmdExplica : function (server, from, target, message) {
         var name = message.trim();
-        
+
         var stmt = explainModule.bot.dbs[server].db.get('SELECT * FROM definitions WHERE name = ?', [message], function (err, result) {
             if (!err) {
                 if (undefined == result) {
@@ -70,7 +70,7 @@ var Explain = {
             }
         });
     },
-    
+
     /**
      * Handles saber command
      */
@@ -93,7 +93,7 @@ var explainModule = {
 			'!saber' : { level : 10 , callback : Explain.cmdSaber }
 		}
 	},
-	
+
     help : function (server, from) {
         this.bot.clients[server].notice(from, '!aprende [algo] es [descripción]');
         this.bot.clients[server].notice(from, '!explica [algo]');

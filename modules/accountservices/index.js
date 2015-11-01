@@ -9,22 +9,22 @@ var crypto = require('crypto');
 var account = {
 	callbacksQueue : {},
 	userLevel : {},
-    
+
 	getUserLevel : function (server, from, cb) {
 		var self = this;
-	
+
 		if (account.userLevel[server] == undefined)
 			account.userLevel[server] = {};
-	
+
 		if (account.userLevel[server][from] == undefined) {
-	    
+
 			if (this.callbacksQueue[server] == undefined)
 				this.callbacksQueue[server] = {};
-	    
+
 			if (this.callbacksQueue[server][from] == undefined)
 				this.callbacksQueue[server][from] = [];
-	    
-	    
+
+
 			var afterWhois = function(server, data) {
 				if (data.account != undefined) {
 					accountModule.bot.dbs[server].getUser(data.nick, function (user) {
@@ -35,15 +35,15 @@ var account = {
 					cb(server, -1);
 				}
 			}
-	    
+
 			this.callbacksQueue[server][from].push(afterWhois)
 	    
-			accountModule.bot.clients[server].send('WHOIS ' + from);
+			accountModule.bot.clients[server].send('WHOIS ', from);
 		} else {
 			cb(server, this.userLevel[server][from]);
 		}
 	},
-    
+
 	checkInAnotherChannel : function (server, curr_chan, nick) {
 		if (nick == accountModule.bot.clients[server].opt.nick) {
 			if (Object.keys(accountModule.bot.clients[server].chans).length == 1)
@@ -58,14 +58,14 @@ var account = {
 					});
 				}
 			});
-	    
+
 			return active_user;
 		}
 	},
-    
+
 	cmdAccess : function (server, nick, target, message) {
 		var params = message.trim().split(' ');
-		
+
 		if (params[0] == undefined || params[0] == '') {
 			accountModule.bot.clients[server].notice(nick, '-- ACCESS LIST --');
 			accountModule.bot.dbs[server].getAccessList(function (err, result) {
@@ -84,7 +84,7 @@ var account = {
 							output.push(user.user + ' (' + user.level + ')');
 						}
 					});
-		    
+
 					if (count != 0) {
 						accountModule.bot.clients[server].say(target, output.join(', '));
 						count = 0;
@@ -116,7 +116,7 @@ var account = {
 						accountModule.bot.invalidArguments(server, nick);
 					}
 					break;
-		    
+
 				case 'set':
 					if (params.length  >= 4) {
 						this.getUserLevel(server, nick, function (server, level) {
@@ -139,7 +139,7 @@ var account = {
 													});
 												}
 												break;
-						
+
 											default:
 										}
 									} else {
@@ -154,7 +154,7 @@ var account = {
 						accountModule.bot.invalidArguments(server, nick);
 					}
 					break;
-		
+
 				case 'del':
 					if (params.length  >= 2) {
 						this.getUserLevel(server, nick, function (server, level) {
@@ -177,12 +177,12 @@ var account = {
 						accountModule.bot.invalidArguments(server, nick);
 					}
 					break;
-		    
+
 				default:
 			}
 		}
 	},
-    
+
 	whois : function (server, data) {
 		if (account.callbacksQueue[server][data.nick] instanceof Array && account.callbacksQueue[server][data.nick].length > 0) {
 			(account.callbacksQueue[server][data.nick] || []).forEach(function (callback) {
@@ -191,7 +191,7 @@ var account = {
 			account.callbacksQueue[server][data.nick] = [];
 		}
 	},
-    
+
 	part : function (server, chan, nick) {
 		if (!account.checkInAnotherChannel(server, chan, nick)) {
 			if (account.userLevel[server] != undefined && account.userLevel[server][nick] != undefined) {
@@ -199,7 +199,7 @@ var account = {
 			}
 		}
 	},
-    
+
 	kick : function (server, chan, nick, reason) {
 		if (!account.checkInAnotherChannel(server, chan, nick)) {
 			if (account.userLevel[server] != undefined && account.userLevel[server][nick] != undefined) {
@@ -207,7 +207,7 @@ var account = {
 			}
 		}
 	},
-    
+
 	nick : function (server, oldnick, newnick, channels) {
 		if (account.userLevel[server] != undefined && account.userLevel[server][oldnick] != undefined) {
 			delete account.userLevel[server][oldnick];
@@ -217,14 +217,14 @@ var account = {
 
 var accountModule = {
 	module : account,
-    
+
 	listeners : {
 		part : account.part,
 		kick : account.kick,
 		whois : account.whois,
 		nick : account.nick
 	},
-	
+
 	commands : {
 		priv : {
 			'access' : {level : 99, callback : account.cmdAccess }
