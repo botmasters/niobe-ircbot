@@ -24,6 +24,7 @@ var niobe = function (config) {
 	this.clients = {};
 	this.dbs = {};
 	this.commands = { chan : {}, priv : {} };
+	this._bootstrapped = false;
 
 	Object.keys(config.servers).forEach(function(key) {
 		var server = config.servers[key];
@@ -31,20 +32,22 @@ var niobe = function (config) {
 			channels: server.channels,
 			secure : server.secure,
 			selfSigned: server.selfSigned,
-			debug: server.debug,
+			debug: true,
 			port : server.port,
 			retryDelay: 5000
 		});
 		self.dbs[key] = new botdb(config.servers[key]);
 
 		self.clients[key].on('motd', function () {
-			self.bootstrap(key);
+			if (!self._bootstrapped)
+				self.bootstrap(key);
 		});
 
 		self.clients[key].on('message', function (from, target, message) {
-			console.log(message);
 			if (self.debug)
-				self.commandCenter(key, from, target, message, (target == self.clients[key].opt.nick));
+				console.log(message);
+
+			self.commandCenter(key, from, target, message, (target == self.clients[key].opt.nick));
 		});
 
 		self.clients[key].on('error', function (err) {
@@ -80,7 +83,7 @@ niobe.prototype.registerModuleCommands = function (server, module) {
 		console.log('Adding commands for ' + module + ' ...');
 
 	var types = Object.keys(this.commands);
-	for (i in types) {
+	for (var i in types) {
 		if (module.commands[types[i]]) {
 			(Object.keys(module.commands[types[i]]) || []).forEach(function (command) {
 				self.commands[types[i]][command] = { 'module' : module, 'command' : module.commands[types[i]][command] };
@@ -184,6 +187,8 @@ niobe.prototype.unloadModule = function (server, module) {
 niobe.prototype.bootstrap = function (server) {
 	var self = this;
 
+	this._bootstrapped = true;
+
 	this.dbs[server].getChannels(function (err, results) {
 		if (!err) {
 			(results || []).forEach(function (channel) {
@@ -195,7 +200,8 @@ niobe.prototype.bootstrap = function (server) {
 	});
 
 	if (this.config.servers[server].oper) {
-		this.clients[server].send('OPER ' + this.config.servers[server].oper.user + ' ' + this.config.servers[server].oper.pass);
+		console.log('lala');
+		this.clients[server].send('OPER ', this.config.servers[server].oper.user, this.config.servers[server].oper.pass);
 	}
 
 	if (this.config.servers[server].nickserv) {
@@ -242,8 +248,9 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 			case '!join':
 				if (self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 					if (level > 10) {
-						if (parts[1] != undefined)
+						if (parts[1] !== undefined) {
 							self.clients[server].join(parts[1]);
+						}
 					} else {
 						self.permissionDenied(server, from);
 					}
@@ -261,8 +268,9 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 			case '!part':
 				self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 					if (level > 10) {
-						if (parts[1] != undefined)
+						if (parts[1] !== undefined) {
 							self.clients[server].part(parts[1]);
+						}
 					} else {
 						self.permissionDenied(server, from);
 					}
@@ -273,10 +281,11 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 				if (self.opInChan(server, channel)) {
 					self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 						if (level > 30) {
-							if (parts[1] != undefined)
+							if (parts[1] !== undefined) {
 								self.mode(server, channel, '+o', parts[1]);
-							else
+							} else {
 								self.mode(server, channel, '+o', from);
+							}
 						} else {
 							self.permissionDenied(server, from);
 						}
@@ -288,13 +297,15 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 				if (self.opInChan(server, channel)) {
 					self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 						if (level > 30) {
-							if (parts[1] != undefined)
-								if (parts[1] == self.clients[server].opt.nick)
+							if (parts[1] !== undefined) {
+								if (parts[1] == self.clients[server].opt.nick) {
 									self.notice(server, from, 'Are you crazy maaaan?');
-								else
+								} else {
 									self.mode(server, channel, '-o', parts[1]);
-							else
+								}
+							} else {
 								self.mode(server, channel, '-o', from);
+							}
 						} else {
 							self.permissionDenied(server, from);
 						}
@@ -307,10 +318,11 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 				if (self.opInChan(server, channel)) {
 					self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 						if (level > 30) {
-							if (parts[1] != undefined)
+							if (parts[1] !== undefined) {
 								self.mode(server, channel, '+v', parts[1]);
-							else
+							} else {
 								self.mode(server, channel, '+v', from);
+							}
 						} else {
 							self.permissionDenied(server, from);
 						}
@@ -323,10 +335,11 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 				if (self.opInChan(server, channel)) {
 					self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 						if (level > 30) {
-							if (parts[1] != undefined)
+							if (parts[1] !== undefined) {
 								self.mode(server, channel, '-v', parts[1]);
-							else
+							} else {
 								self.mode(server, channel, '-v', from);
+							}
 						} else {
 							self.permissionDenied(server, from);
 						}
@@ -338,8 +351,9 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 				if (self.opInChan(server, channel)) {
 					self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 						if (level > 50) {
-							if (parts[1] != undefined)
+							if (parts[1] !== undefined) {
 								self.clients[server].send('KICK ' + channel, parts[1], parts.slice(2));
+							}
 						} else {
 							self.permissionDenied(server, from);
 						}
@@ -367,8 +381,9 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 			case 'vater!':
 				self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
 					if (level > 10) {
-						if (self.opInChan(server, channel) && self.clients[server].chans[channel].users['vater'] != undefined)
+						if (self.opInChan(server, channel) && self.clients[server].chans[channel].users.vater !== undefined) {
 							self.clients[server].send('KICK ' + channel + ' vater','por gato!');
+						}
 					} else {
 						self.permissionDenied(server, from);
 					}
@@ -384,8 +399,9 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 			case '!help':
 				this.clients[server].notice(from, '- Command list -');
 				(Object.keys(self.modules)).forEach(function (item) {
-					if (undefined != self.modules[item].help)
+					if (undefined !== self.modules[item].help) {
 						self.modules[item].help(server, from);
+					}
 				});
 				break;
 			default:
@@ -406,11 +422,11 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 };
 
 niobe.prototype.mode = function (server, channel, mode, user) {
-	this.clients[server].send('MODE ' + channel + ' ' + mode + ' ' + user);
+	this.clients[server].send('MODE ', channel, mode, user);
 };
 
 niobe.prototype.samode = function (server, channel, mode, user) {
-	this.clients[server].send('SAMODE ' + channel + ' ' + mode + ' ' + user);
+	this.clients[server].send('SAMODE ', channel, mode, user);
 };
 
 niobe.prototype.opInChan = function (server, channel) {
@@ -420,10 +436,7 @@ niobe.prototype.opInChan = function (server, channel) {
 niobe.prototype.exec = function (server, command, target, args) {
 	var self = this;
 
-	if (args == undefined)
-		var args = [];
-
-	var child = child_process.spawn(command, args);
+	var child = child_process.spawn(command, args || []);
 
 	child.stdout.on('data', function (data) {
 		self.say(server, target, data);

@@ -37,7 +37,7 @@ var account = {
 			}
 
 			this.callbacksQueue[server][from].push(afterWhois)
-	    
+
 			accountModule.bot.clients[server].send('WHOIS ', from);
 		} else {
 			cb(server, this.userLevel[server][from]);
@@ -96,7 +96,7 @@ var account = {
 			switch (params[0]) {
 				case 'add':
 					if (params.length  >= 4) {
-						this.getUserLevel(server, nick, function (server, level) {
+						account.getUserLevel(server, nick, function (server, level) {
 							if (level > 90) {
 								accountModule.bot.dbs[server].getUser(params[1], function (user) {
 									if (user) {
@@ -119,7 +119,7 @@ var account = {
 
 				case 'set':
 					if (params.length  >= 4) {
-						this.getUserLevel(server, nick, function (server, level) {
+						account.getUserLevel(server, nick, function (server, level) {
 							if (level > 90) {
 								accountModule.bot.dbs[server].getUser(params[1], function (user) {
 									if (user) {
@@ -157,7 +157,7 @@ var account = {
 
 				case 'del':
 					if (params.length  >= 2) {
-						this.getUserLevel(server, nick, function (server, level) {
+						account.getUserLevel(server, nick, function (server, level) {
 							if (level > 90) {
 								accountModule.bot.dbs[server].getUser(params[1], function (user) {
 									if (user) {

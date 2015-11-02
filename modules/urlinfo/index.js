@@ -41,7 +41,6 @@ var urlInfoModule = {
 	},
 
 	help : function (server, from) {
-		this.bot.clients[server].notice(from, '!urlinfo text');
 	}
 };
 
