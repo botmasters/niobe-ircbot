@@ -9,7 +9,7 @@ var Explain = {
      * Handles aprende command
      */
     cmdAprende : function (server, from, target, message) {
-        var parts = message.split(/es/i),
+        var parts = message.split(/\ses\s/i),
             name = parts[0].trim(),
             description = parts.splice(1).join('es').trim();
 

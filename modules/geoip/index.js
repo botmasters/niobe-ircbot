@@ -26,12 +26,12 @@ var geoip = {
                         geoipModule.bot.clients[server].say(target, 'Empty result');
                     }
                 } else {
-                    geoipModule.bot.clients[server].say(target, 'Error sending request. Status Code #' + response.statusCode);
+                    geoipModule.bot.clients[server].say(target, 'Error sending request.' + ( response && response.statusCode ?  ' Status Code #' + response.statusCode : '' ));
                 }
             });
         }
     }
-    
+
 };
 
 var geoipModule = {
@@ -40,7 +40,7 @@ var geoipModule = {
 			'!geoip' : { level : 10, callback : geoip.cmdGeoip }
 		}
 	},
-	
+
     help : function (server, from) {
         this.bot.clients[server].notice(from, '!geoip address');
     }
