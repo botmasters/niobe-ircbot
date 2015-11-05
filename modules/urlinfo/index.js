@@ -26,7 +26,7 @@ var urlInfo = {
 		var urlMatch = message.match(/(http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/);
 
 		if (target.match(/^#(.*)$/) && urlMatch) { // Channel message
-			var service = urlInfo.detectService(server, target, urlMatch[0]);
+			var service = urlInfo.detectService(urlMatch[0]);
 
 			switch (service.name) {
 				case 'youtube':
@@ -34,7 +34,7 @@ var urlInfo = {
 					break;
 
 				default:
-					urlInfo.basicInfo(urlMatch[0]);
+					urlInfo.basicInfo(server, target, urlMatch[0]);
 			}
 		}
 	},
