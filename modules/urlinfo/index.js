@@ -23,7 +23,7 @@ var urlInfo = {
 
 		var parts = message.trim().split(/ +/);
 		var command = parts[0];
-		var urlMatch = message.match(/(http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/);
+		var urlMatch = message.match(/(http|ftp|https):\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/);
 
 		if (target.match(/^#(.*)$/) && urlMatch) { // Channel message
 			var service = urlInfo.detectService(urlMatch[0]);
