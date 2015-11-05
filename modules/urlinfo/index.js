@@ -34,7 +34,7 @@ var urlInfo = {
 					break;
 
 				default:
-					urlInfo.basicInfo(url);
+					urlInfo.basicInfo(urlMatch[0]);
 			}
 		}
 	},
