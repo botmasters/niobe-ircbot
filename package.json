@@ -13,6 +13,7 @@
     "node": ">=0.4.12"
   },
   "dependencies": {
+    "googleapis": "^2.1.6",
     "irc": "^0.4.0",
     "request": ">= 2.2.9",
     "sqlite3": ">= 2.0.0"

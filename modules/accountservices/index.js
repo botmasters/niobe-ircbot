@@ -227,8 +227,14 @@ var accountModule = {
 
 	commands : {
 		priv : {
-			'access' : {level : 99, callback : account.cmdAccess }
+			'!access' : {level : 99, callback : account.cmdAccess }
 		}
+	},
+
+	privateHelp : function (server, from) {
+		this.bot.clients[server].notice(from, '!access [add] [user] [email] [0-99]');
+		this.bot.clients[server].notice(from, '!access [del] [user]');
+		this.bot.clients[server].notice(from, '!access [set] [user] [level] [0-99]');
 	}
 };
 

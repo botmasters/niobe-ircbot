@@ -231,6 +231,30 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 
 	if (is_pv) {
 		switch (command) {
+			case '!say':
+				if (self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+					if (level > 10) {
+						parts.shift();
+						var target = parts.shift();
+						self.clients[server].say(target, parts.join(' '));
+					} else {
+						self.permissionDenied(server, from);
+					}
+				}));
+				break;
+
+			case '!notice':
+				if (self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
+					if (level > 10) {
+						parts.shift();
+						var target = parts.shift();
+						self.clients[server].notice(target, parts.join(' '));
+					} else {
+						self.permissionDenied(server, from);
+					}
+				}));
+				break;
+
 			default :
 				self.processModuleCommands(server, from, channel, message, is_pv);
 				break;
@@ -375,6 +399,7 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 					}
 				});
 				break;
+
 			case 'hola' :
 				this.clients[server].say(channel, '("\\(^o^)/")');
 				//added by Vsg
@@ -398,12 +423,23 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 				this.clients[server].say(channel, 'eaea');
 				break;
 			case '!help':
-				this.clients[server].notice(from, '- Command list -');
+				this.clients[server].notice(from, '- Private Command list -');
+				this.clients[server].notice(from, '!say [target] [message]');
+				this.clients[server].notice(from, '!notice [target] [message]');
+
+				(Object.keys(self.modules)).forEach(function (item) {
+					if (undefined !== self.modules[item].privateHelp) {
+						self.modules[item].privateHelp(server, from);
+					}
+				});
+
+				this.clients[server].notice(from, '- Channel Command list -');
 				(Object.keys(self.modules)).forEach(function (item) {
 					if (undefined !== self.modules[item].help) {
 						self.modules[item].help(server, from);
 					}
 				});
+
 				break;
 			default:
 				self.processModuleCommands(server, from, channel, message, is_pv);
