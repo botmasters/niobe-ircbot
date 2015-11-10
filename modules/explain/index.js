@@ -15,7 +15,7 @@ var Explain = {
 
         var stmt = explainModule.bot.dbs[server].db.get('SELECT 1 FROM definitions WHERE name = ?', [name], function (err, result) {
             if (!err) {
-                if (undefined == result) {
+                if (undefined === result) {
                     var stmt = explainModule.bot.dbs[server].db.get('INSERT INTO definitions (user, name, description) VALUES (?, ?, ?)', [target, name, description], function (err, result) {
                         if (err)
                             explainModule.bot.clients[server].notice(from, 'Ya existe una definición para ' + name);

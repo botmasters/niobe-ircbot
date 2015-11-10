@@ -14,6 +14,8 @@ sqlite3 dbname.db
 CREATE TABLE channels (id INTEGER PRIMARY KEY ASC, channel TEXT);
 CREATE TABLE users (id INTEGER PRIMARY KEY ASC, user TEXT, email TEXT, level INTEGER DEFAULT 10);
 CREATE TABLE definitions (id integer primary key asc, user text, name text, description text);
+CREATE TABLE telegram_channels (id integer primary key asc, irc_chan text, t_group_id text);
+CREATE TABLE telegram_users (id integer primary key asc, tc_id integer, irc_nick text, t_username text);
 </pre>
 
 ##Usage
