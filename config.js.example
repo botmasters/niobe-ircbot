@@ -1,0 +1,34 @@
+var config = {
+	servers : {
+	    'KernelPanic' :
+		{
+		    host : 'irc.kernelpanic.com.ar',
+		    secure : true,
+		    selfSigned : true,
+		    port : 6697,
+		    nick : 'niobe-dev',
+		    channels: ['#kernelpanic'],
+		    db : 'niobe.db',
+			oper : {
+				user : 'oper_user',
+				pass : 'oper_pass'
+			},
+
+			nickserv : {
+				user : 'nick',
+				pass: 'nickserv_pass'
+			}
+		}
+	},
+	google : {
+		apiKey: '_google_api_key_'
+	},
+	telegram : {
+		token: '_telegram_bot_access_token_'
+	},
+	debug : true,
+	modules : [ 'hash', 'ping', 'accountservices', 'explain', 'google', 'exploit-db', 'geoip', 'servicecmds', 'urlinfo', 'telegram' ],
+	modulesPath : './modules/'
+};
+
+module.exports = config;
