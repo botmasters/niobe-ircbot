@@ -13,6 +13,11 @@ var Explain = {
             name = parts[0].trim(),
             description = parts.splice(1).join('es').trim();
 
+        if ('' === name || '' === description) {
+          explainModule.bot.clients[server].notice(from, 'Por favor especifique un significado.');
+          return
+        }
+
         var stmt = explainModule.bot.dbs[server].db.get('SELECT 1 FROM definitions WHERE name = ?', [name], function (err, result) {
             if (!err) {
                 if (undefined === result) {
