@@ -72,7 +72,7 @@ var telegram = {
 			uName = msg.from.username ? msg.from.username : msg.from.first_name + ' ' + msg.from.last_name;
 
 		switch (command) {
-			case '!users':
+			case '/users':
 				var ircUsers = (Object.keys(telegramModule.bot.clients[server].chans[telegram._rev_bridges[server][msg.chat.id]].users || []))
 								.map(function (user) { return ' ' + user; });
 
@@ -83,12 +83,17 @@ var telegram = {
 				}
 				break;
 
-			case '!irc':
+			case '/irc':
 				parts.shift();
 				telegramModule.bot.clients[server].say(telegram._rev_bridges[server][msg.chat.id], '[Telegram/' + uName + '] ' + parts.join(' '));
 				break;
 
-			case '!mode':
+			case '/raw':
+				parts.shift();
+				telegramModule.bot.clients[server].say(telegram._rev_bridges[server][msg.chat.id], parts.join(' '));
+				break;
+
+			case '/mode':
 				switch (parts[1]) {
 					case 'full':
 					case 'selective':
@@ -103,12 +108,13 @@ var telegram = {
 
 				break;
 
-			case '!help':
+			case '/help':
 				var helpCmds = [
 						'Available commands:',
-						'!users - Lists the connected IRC users',
-						'!mode [full/selective] - Changes the bridge mode. FULL to transfer every message / SELECTIVE to select which are transfered',
-						'!irc [text] - In SELETIVE mode, is used to send text to the bridged IRC channel'
+						'/users - Lists the connected IRC users',
+						'/mode [full/selective] - Changes the bridge mode. FULL to transfer every message / SELECTIVE to select which are transfered',
+						'/irc [text] - In SELETIVE mode, is used to send text to the bridged IRC channel',
+						'/raw [text] - Send RAW text to the bridged IRC channel'
 				];
 				telegram._bot.sendMessage(msg.chat.id, helpCmds.join('\n'));
 				break;
@@ -170,7 +176,7 @@ var telegram = {
 			if (msg && msg.chat && msg.chat.id && telegram._rev_bridges[server][msg.chat.id]) {
 				var uName = msg.from.username ? msg.from.username : msg.from.first_name + ' ' + msg.from.last_name;
 
-				if (msg.text.match(/^!/)) { // Command from telegram
+				if (msg.text.match(/^\//)) { // Command from telegram
 					telegram.cmdTelegram(server, msg);
 				} else { // Normal message
 					if (telegram._options[server][telegram._rev_bridges[server][msg.chat.id]].mode == 'full') {

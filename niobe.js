@@ -404,17 +404,7 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 				this.clients[server].say(channel, '("\\(^o^)/")');
 				//added by Vsg
 				break;
-			case 'vater!':
-				self.modules.accountservices.module.getUserLevel(server, from, function (server, level) {
-					if (level > 10) {
-						if (self.opInChan(server, channel) && self.clients[server].chans[channel].users.vater !== undefined) {
-							self.clients[server].send('KICK ' + channel + ' vater','por gato!');
-						}
-					} else {
-						self.permissionDenied(server, from);
-					}
-				});
-				break;
+
 			case 'ea':
 			case 'eaea':
 			case 'aza':
@@ -422,6 +412,7 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 			case 'zephrax':
 				this.clients[server].say(channel, 'eaea');
 				break;
+			
 			case '!help':
 				this.clients[server].notice(from, '- Private Command list -');
 				this.clients[server].notice(from, '!say [target] [message]');
@@ -449,12 +440,18 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 		if (message.match(/navidad|papa\snoel|santa\sclaus/i)) {
 			this.clients[server].say(channel, 'Ho-ho-hoo!');
 		}
-		if (message.match(/faso/i))
+
+		if (message.match(/faso/i)) {
 			this.clients[server].say(channel, 'nono me pega mal y flasheo con el chupacabras!');
-		if (message.match(/tururu/i))
+		}
+
+		if (message.match(/tururu/i)) {
 			this.clients[server].say(channel, 'Oh no, this is the road\nSaid this is the road\nThis is the road to hell!');
-		if (message.match(/cogollo/i))
+		}
+
+		if (message.match(/cogollo/i)) {
 			this.clients[server].say(channel, 'convida vieja!');
+		}
 	}
 };
 
