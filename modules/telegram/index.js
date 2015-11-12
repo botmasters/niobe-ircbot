@@ -180,7 +180,13 @@ var telegram = {
 					telegram.cmdTelegram(server, msg);
 				} else { // Normal message
 					if (telegram._options[server][telegram._rev_bridges[server][msg.chat.id]].mode == 'full') {
-						telegramModule.bot.clients[server].say(telegram._rev_bridges[server][msg.chat.id], '[Telegram/' + uName + '] ' + msg.text);
+						if (msg.forward_from !== undefined) {
+							telegramModule.bot.clients[server].say(telegram._rev_bridges[server][msg.chat.id], '[Telegram/' + uName + '][fwd+' +
+								(msg.forward_from.username ? msg.forward_from.username : msg.forward_from.first_name) +
+								'] ' + msg.text);
+						} else {
+							telegramModule.bot.clients[server].say(telegram._rev_bridges[server][msg.chat.id], '[Telegram/' + uName + '] ' + msg.text);
+						}
 					}
 				}
 			}
