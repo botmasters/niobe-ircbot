@@ -432,6 +432,22 @@ niobe.prototype.commandCenter = function (server, from, channel, message, is_pv)
 				});
 
 				break;
+
+
+			case '20':
+			case '$20':
+			case '20 dolares':
+			case '20 dólares':
+				this.clients[server].say(channel, 'Ah, 20 dolares. Yo quería maní...');
+				break;
+
+
+			case 'mani':
+			case 'maní':
+				this.clients[server].say(channel, '.i.');
+				break;
+
+
 			default:
 				self.processModuleCommands(server, from, channel, message, is_pv);
 				break;
