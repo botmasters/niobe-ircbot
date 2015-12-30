@@ -6,7 +6,9 @@
 
 var request = require('request'),
 	config = require('../../config'),
-	TelegramBot = require('node-telegram-bot-api');
+	TelegramBot = require('node-telegram-bot-api'),
+	Cloud = require('./lib/cloud'),
+	cloud = new Cloud();
 
 var telegram = {
 
@@ -119,9 +121,37 @@ var telegram = {
 				telegram._bot.sendMessage(msg.chat.id, helpCmds.join('\n'));
 				break;
 
-			default:
-				telegram._bot.sendMessage(msg.chat.id, 'Invalid command.');
+			case '/stats':
+				telegram.stats(server, msg);
+				break;
 		}
+	},
+
+	stats : function (server, msg) {
+		var chatId = msg.chat.id,
+	    	params = msg.text.split(" "),
+			filter = (typeof params[1] !="undefined") ? params[1] : "";
+
+		telegram._bot.sendMessage(chatId, "Wait a moment...").then(function (a) {
+			var replyTo = a.message_id;
+
+			cloud.getCloud(chatId, filter, function (err, file) {
+				if (!err) {
+					telegram._bot.sendPhoto(chatId, file, { caption: cloud.getCaption(filter) });
+				} else {
+					switch (err) {
+						case "NO_DATA":
+							telegram._bot.sendMessage(chatId, "No enough words. Speak more :P");
+							break;
+
+						default:
+							console.log(err);
+							telegram._bot.sendMessage(chatId, "Something is wrong. Check logs!");
+							break;
+		  		  	}
+				}
+			});
+		});
 	},
 
 	switchMode : function (server, irc_chan, mode, next) {
@@ -179,6 +209,16 @@ var telegram = {
 				if (msg.text.match(/^\//)) { // Command from telegram
 					telegram.cmdTelegram(server, msg);
 				} else { // Normal message
+					var toSave = {
+						chatId: msg.chat.id,
+						date: msg.date,
+						words: msg.text
+					};
+
+					console.log(toSave);
+
+					cloud.save(toSave);
+
 					if (telegram._options[server][telegram._rev_bridges[server][msg.chat.id]].mode == 'full') {
 						if (msg.forward_from !== undefined) {
 							telegramModule.bot.clients[server].say(telegram._rev_bridges[server][msg.chat.id], '[Telegram/' + uName + '][fwd+' +
