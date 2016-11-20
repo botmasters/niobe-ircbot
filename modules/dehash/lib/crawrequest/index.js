@@ -1,3 +1,3 @@
 module.exports = {
-    request: require('./lib/request')
+  request: require('./lib/request')
 };
